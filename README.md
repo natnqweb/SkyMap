@@ -5,7 +5,7 @@ Tool that let you calculate star azymuth altitude, in any given time and any giv
 
 
 # constructor example 
-    {
+    
     degs lattitude = 34.06;
     degs longitude = 118.24358;
     degs declination = -16.7424;
@@ -25,5 +25,5 @@ Tool that let you calculate star azymuth altitude, in any given time and any giv
 
 
     SkyMap star(lattitude *N, longitude *W, declination, right_ascension, year, month, day, time);
-     }
+     
 
