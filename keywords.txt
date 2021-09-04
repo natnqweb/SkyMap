@@ -1,0 +1,24 @@
+# Syntax Coloring Map For SkyMap
+
+
+# Classes (KEYWORD1)
+SkyMap	KEYWORD1
+# Functions (KEYWORD2)
+my_location	KEYWORD2
+Hh_mm_ss2UTC	KEYWORD2
+star_ra_dec	KEYWORD2
+J2000	KEYWORD2
+Local_Siderial_Time	KEYWORD2
+calculate_AZ_alt	KEYWORD2
+Calculate_all	KEYWORD2
+get_star_Azymuth	KEYWORD2
+get_star_Altitude	KEYWORD2
+update	KEYWORD2
+
+# Datatypes(KEYWORD3)
+days	KEYWORD3
+hrs	KEYWORD3
+rads	KEYWORD3
+years	KEYWORD3
+months	KEYWORD3
+degs	KEYWORD3
