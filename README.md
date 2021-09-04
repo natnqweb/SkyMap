@@ -4,7 +4,7 @@ Tool that let you calculate star azymuth altitude, in any given time and any giv
 
 
 
-# constructor example 
+# constructor example observation object-Sirius - observation location los angeles ----Lat 34deg 3min 8 sec North----Long 118deg 14 min  37 sec WEST----
     #include <SkyMap.h>
     degs lattitude = 34.06;
     degs longitude = 118.24358;
