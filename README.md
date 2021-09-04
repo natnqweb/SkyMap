@@ -5,7 +5,7 @@ Tool that let you calculate star azymuth altitude, in any given time and any giv
 
 
 # constructor example 
-    
+    #include <SkyMap.h>
     degs lattitude = 34.06;
     degs longitude = 118.24358;
     degs declination = -16.7424;
