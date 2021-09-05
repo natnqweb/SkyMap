@@ -2,6 +2,7 @@
 Tool that let you calculate star azymuth altitude, in any given time and any given position
 i provided some examples
 in examples we observate sirius from los angeles
+as you will see in examples under you can gather some interesting data as for example hour angle or days from j2000 or local sidereal time and even you can calculate UTC for your timezone
 
 
 
