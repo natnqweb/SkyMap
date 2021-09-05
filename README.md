@@ -1,5 +1,7 @@
 # SkyMap
 Tool that let you calculate star azymuth altitude, in any given time and any given position
+i provided some examples
+in examples we observate sirius from los angeles
 
 
 
