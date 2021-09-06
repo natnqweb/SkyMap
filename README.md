@@ -57,7 +57,7 @@ as you will see in examples under you can gather some interesting data as for ex
         hour = 20;
         minute = 30;
         second = 0;
-        local_timezone_offset = 7;                                               //offset for los angeles
+        local_timezone_offset = 7;                                               //offset for los angeles in LA it is UTC -7 so you need to place 7 note that this is opossite sign thiss will be repaired in future versions
         lattitude = 34.06;                                                       //los angeles
         longitude = -118.24358;                                                  //los angeles
         RA = 101.52;                                                             //sirius
