@@ -1,0 +1,5 @@
+{
+    "board": "arduino:avr:uno",
+    "port": "COM5",
+    "sketch": "examples\\step_by_step\\step_by_step.ino"
+}
