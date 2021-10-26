@@ -259,3 +259,11 @@ void SkyMap::update(degs lattitude, degs longitude, degs declination, hrs right_
 	_day+=newday;
     Calculate_all();
 }
+bool SkyMap::IsVisible()
+{
+	if (_Star_ALT_AZ[0]>=0){
+		return true;
+	}else{
+		return false;
+	}
+}

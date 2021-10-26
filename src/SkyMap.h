@@ -46,16 +46,19 @@ public:
     degs get_star_Altitude(); //works only if you provide all data at constructor or in update() function and if you previously used calculate_AZ_alt()
 
     void update(degs lattitude = 0, degs longitude = 0, degs declination = 0, hrs right_ascension = 0, years year = 0, months month = 0, days day = 0, hrs time = 0); //if you created empty constructor you can provide all data here then use get..() functions
-
+    rads deg2rad(degs Deg);
+    degs rad2deg(rads Rad);
+	//check for star visibility  sometimes user wants to know only if it will be visible or not , function returns true if is visible false if it is not returns value when previously provided data to update function on in constructor what star you want to look at
+	bool IsVisible();
 private:
+	bool isvisible=false;
     degs _MyLocation[2];
     float _star_ra_dec[2];
     degs _Star_ALT_AZ[2];
     float _DateTime[4];
     degs h2deg(hrs h);
     hrs deg2h(degs Deg);
-    rads deg2rad(degs Deg);
-    degs rad2deg(rads Rad);
+
     degs asind(rads rad);
     degs acosd(rads rad);
     hrs _right_ascension, _time;
