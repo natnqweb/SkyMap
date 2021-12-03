@@ -25,7 +25,7 @@ float *SkyMap::DateTime(years year, months month, days day, hrs UTC)
         _month = month;
         _day = day;
         _time = UTC;
-		_day+=newday;
+        _day += newday;
     }
     _DateTime[0] = _year;
     _DateTime[1] = _month;
@@ -210,24 +210,28 @@ float SkyMap::Hh_mm_ss2UTC(float hhh, float mmm, float sss, float your_timezone_
 {
     hrs converted_to_utc = hhh + mmm / 60 + sss * 0.000277777778;
     converted_to_utc -= your_timezone_offset;
-	if (converted_to_utc>=24)
-	{ 
-		converted_to_utc -=24 ;
-		
-		newday=1;
-		
-	}else if(converted_to_utc<0){
-		converted_to_utc+=24;
-		newday=-1;
-		
-	}else if (converted_to_utc==24){
-		
-		converted_to_utc=0;
-		newday=1;
-	}else{
-		newday=0;
-	}
-	
+    if (converted_to_utc >= 24)
+    {
+        converted_to_utc -= 24;
+
+        newday = 1;
+    }
+    else if (converted_to_utc < 0)
+    {
+        converted_to_utc += 24;
+        newday = -1;
+    }
+    else if (converted_to_utc == 24)
+    {
+
+        converted_to_utc = 0;
+        newday = 1;
+    }
+    else
+    {
+        newday = 0;
+    }
+
     return converted_to_utc;
 }
 void SkyMap::Calculate_all()
@@ -256,14 +260,17 @@ void SkyMap::update(degs lattitude, degs longitude, degs declination, hrs right_
     _year = year;
     _month = month;
     _day = day;
-	_day+=newday;
+    _day += newday;
     Calculate_all();
 }
 bool SkyMap::IsVisible()
 {
-	if (_Star_ALT_AZ[0]>=0){
-		return true;
-	}else{
-		return false;
-	}
+    if (_Star_ALT_AZ[0] >= 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
