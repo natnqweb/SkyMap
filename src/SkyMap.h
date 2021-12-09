@@ -127,17 +127,17 @@ public:
      */
     degs *calculate_AZ_alt(degs hour_angle = 0, degs declination = 0, degs lattitude = 0);
     /**
-     * @brief perform all necessary calculations and after this function is called you can use get_star_azymuth and get_star_altitude
+     * @brief perform all necessary calculations and after this function is called you can use get_star_azimuth and get_star_altitude
      * it is called automatically when using update() or when all data is provided in constuctor
      * 
      */
     void Calculate_all();
     /**
-     * @brief Get the star Azymuth object works only if you provide all data at constructor or in update() function and if you previously used calculate_AZ_alt()
+     * @brief Get the star azimuth object works only if you provide all data at constructor or in update() function and if you previously used calculate_AZ_alt()
      * 
      * @return * degs 
      */
-    degs get_star_Azymuth();
+    degs get_star_Azimuth();
     /**
      * @brief Get the star Altitude object works only if you provide all data at constructor or in update() function and if you previously used calculate_AZ_alt()
      * 

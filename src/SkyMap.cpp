@@ -241,7 +241,7 @@ void SkyMap::Calculate_all()
     Hour_Angle();
     calculate_AZ_alt(_hourangle, _declination, _lattitude);
 }
-degs SkyMap::get_star_Azymuth()
+degs SkyMap::get_star_Azimuth()
 {
     return _Star_ALT_AZ[1];
 }
