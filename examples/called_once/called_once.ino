@@ -35,7 +35,7 @@ void setup()
 {
     Serial.begin(115200);
     Serial.println(star.get_star_Altitude());
-    Serial.println(star.get_star_Azymuth());
+    Serial.println(star.get_star_Azimuth());
 }
 void loop()
 {

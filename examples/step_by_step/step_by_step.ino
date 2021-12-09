@@ -9,7 +9,7 @@ float j2000;                //days since jan 2000  - to be calculated
 float Local_sidereal_time;  //to be calculated
 float Hour_angle;           // to be calculated
 float *p;                   // pointer to results
-float Az;                   //finally Azymuth of star and altitude
+float Az;                   //finally Azimuth of star and altitude
 float Alt;
 SkyMap sm;
 
@@ -40,7 +40,7 @@ void setup()
 }
 void loop()
 {
-    Serial.print("Azymuth: ");
+    Serial.print("Azimuth: ");
     Serial.println(Az);
     Serial.print("Altitude: ");
     Serial.println(Alt);

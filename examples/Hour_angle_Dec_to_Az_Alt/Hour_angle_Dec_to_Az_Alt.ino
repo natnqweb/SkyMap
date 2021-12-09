@@ -14,7 +14,7 @@ void loop()
     p = sm.calculate_AZ_alt(Hour_angle, Declination, your_lattitude);
     Az = *p;
     Alt = *(p + 1);
-    Serial.print("Azymuth: ");
+    Serial.print("Azimuth: ");
     Serial.println(Az);
     Serial.print("Altitude: ");
     Serial.println(Alt);
