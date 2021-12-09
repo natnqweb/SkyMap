@@ -11,7 +11,7 @@ J2000 KEYWORD2
 Local_Siderial_Time KEYWORD2
 calculate_AZ_alt KEYWORD2
 Calculate_all KEYWORD2
-get_star_Azymuth KEYWORD2
+get_star_Azimuth KEYWORD2
 DateTime KEYWORD2
 
 get_star_Altitude KEYWORD2
