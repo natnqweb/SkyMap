@@ -1,5 +1,5 @@
 # SkyMap
-Tool that let you calculate star azymuth altitude, in any given time and any given position
+Tool that let you calculate star azimuth altitude, in any given time and any given position
 i provided some examples
 in examples we observate sirius from los angeles
 as you will see in examples under you can gather some interesting data as for example hour angle or days from j2000 or local sidereal time and even you can calculate UTC for your timezone
@@ -32,7 +32,7 @@ https://www.ardu-badge.com/SkyMap
     SkyMap star(lattitude *N, longitude *W, declination, right_ascension, year, month, day, time);
     
 # Step by Step example
-    #include <SkyMap.h>
+        #include <SkyMap.h>
     // data you must provide
     float year, month, day, hour, minute, second; //date and time can be taken from rtc
     float local_timezone_offset;
@@ -43,7 +43,7 @@ https://www.ardu-badge.com/SkyMap
     float Local_sidereal_time;  //to be calculated
     float Hour_angle;           // to be calculated
     float *p;                   // pointer to results
-    float Az;                   //finally Azymuth of star and altitude
+    float Az;                   //finally Azimuth of star and altitude
     float Alt;
     SkyMap sm;
 
@@ -59,7 +59,7 @@ https://www.ardu-badge.com/SkyMap
         hour = 20;
         minute = 30;
         second = 0;
-        local_timezone_offset = 7;                                               //offset for los angeles in LA it is UTC -7 so you need to place 7 note that this is opossite sign thiss will be repaired in future versions
+        local_timezone_offset = -7;                                               //offset for los angeles
         lattitude = 34.06;                                                       //los angeles
         longitude = -118.24358;                                                  //los angeles
         RA = 101.52;                                                             //sirius
@@ -74,12 +74,11 @@ https://www.ardu-badge.com/SkyMap
     }
     void loop()
     {
-        Serial.print("Azymuth: ");
+        Serial.print("Azimuth: ");
         Serial.println(Az);
         Serial.print("Altitude: ");
         Serial.println(Alt);
         delay(3000);
     }
-
      
 
