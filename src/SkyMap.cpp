@@ -1,4 +1,4 @@
-#include <SkyMap.h>
+#include "SkyMap.h"
 
 SkyMap::SkyMap(degs lattitude, degs longitude, degs declination, hrs right_ascension, years year, months month, days day, hrs time)
 {
@@ -17,7 +17,7 @@ SkyMap::SkyMap(degs lattitude, degs longitude, degs declination, hrs right_ascen
         Calculate_all();
     }
 }
-float *SkyMap::DateTime(years year, months month, days day, hrs UTC)
+DateTimeValues SkyMap::DateTime(years year, months month, days day, hrs UTC)
 {
     if (year != 0 && month != 0 && day != 0)
     {
@@ -27,40 +27,53 @@ float *SkyMap::DateTime(years year, months month, days day, hrs UTC)
         _time = UTC;
         _day += newday;
     }
-    _DateTime[0] = _year;
-    _DateTime[1] = _month;
-    _DateTime[2] = _day;
-    _DateTime[3] = _time;
-    return _DateTime;
+    return {_year, _month, _day, _time};
 }
 
-degs *SkyMap::my_location(degs lattitude, degs longitude)
+ObserverPosition SkyMap::my_location(degs lattitude, degs longitude)
 {
     if (lattitude != 0 && longitude != 0)
     {
         _lattitude = lattitude;
         _longitude = longitude;
-        _MyLocation[0] = _lattitude;
-        _MyLocation[1] = _longitude;
+        _observer_position.lattitude = _lattitude;
+        _observer_position.longitude = _longitude;
     }
 
-    _MyLocation[0] = _lattitude;
-    _MyLocation[1] = _longitude;
-    return _MyLocation;
+    _observer_position.lattitude = _lattitude;
+    _observer_position.longitude = _longitude;
+    return {_lattitude, _longitude};
 }
-float *SkyMap::star_ra_dec(hrs right_ascension, degs declination)
+Star SkyMap::star_ra_dec(hrs right_ascension, degs declination)
 {
     if (right_ascension != 0 && declination != 0)
     {
         _right_ascension = right_ascension;
         _declination = declination;
-        _star_ra_dec[0] = _right_ascension;
-        _star_ra_dec[1] = _declination;
+        _star.SetRA(_right_ascension);
+        _star.SetDec(_declination);
     }
 
-    _star_ra_dec[0] = _right_ascension;
-    _star_ra_dec[1] = _declination;
-    return _star_ra_dec;
+    _star.SetRA(_right_ascension);
+    _star.SetDec(_declination);
+
+    return _star;
+}
+
+CelestialObject *SkyMap::celestial_object_ra_dec(CelestialObject *celestial_object)
+{
+    if (celestial_object)
+    {
+        _right_ascension = celestial_object->GetRA();
+        _declination = celestial_object->GetDec();
+        _star.SetRA(_right_ascension);
+        _star.SetDec(_declination);
+    }
+
+    _star.SetRA(_right_ascension);
+    _star.SetDec(_declination);
+
+    return &_star;
 }
 
 days SkyMap::J2000(years Y, months M, days D, hrs TIME)
@@ -164,7 +177,8 @@ degs SkyMap::Hour_Angle(degs LST, hrs right_ascension)
         return _hourangle;
     }
 }
-degs *SkyMap::calculate_AZ_alt(degs hour_angle, degs declination, degs lattitude)
+
+SearchResult SkyMap::calculate_AZ_alt(degs hour_angle, degs declination, degs lattitude)
 {
     /*  math behind calculations -- conversion from HA and DEC to ALT and  AZ
 sin(ALT) = sin(DEC) * sin(LAT) + cos(DEC) * cos(LAT) * cos(HA)
@@ -201,10 +215,9 @@ If sin(HA) is negative,then AZ = A, otherwise AZ = 360 - A */
     {
         AZ = A;
     }
-
-    _Star_ALT_AZ[0] = ALT;
-    _Star_ALT_AZ[1] = AZ;
-    return _Star_ALT_AZ;
+    _search_result.SetAzimuth(AZ);
+    _search_result.SetAltitude(ALT);
+    return _search_result;
 }
 float SkyMap::Hh_mm_ss2UTC(float hhh, float mmm, float sss, float your_timezone_offset)
 {
@@ -243,12 +256,18 @@ void SkyMap::Calculate_all()
 }
 degs SkyMap::get_star_Azimuth()
 {
-    return _Star_ALT_AZ[1];
+    return _search_result.GetAzimuth();
 }
 degs SkyMap::get_star_Altitude()
 {
-    return _Star_ALT_AZ[0];
+    return _search_result.GetAltitude();
 }
+
+SearchResult SkyMap::get_star_search_result()
+{
+    return _search_result;
+}
+
 void SkyMap::update(degs lattitude, degs longitude, degs declination, hrs right_ascension, years year, months month, days day, hrs time)
 {
 
@@ -263,9 +282,14 @@ void SkyMap::update(degs lattitude, degs longitude, degs declination, hrs right_
     _day += newday;
     Calculate_all();
 }
+
+CelestialObject *SkyMap::get_celestial_object()
+{
+    return &_star;
+};
 bool SkyMap::IsVisible()
 {
-    if (_Star_ALT_AZ[0] >= 0)
+    if (_search_result.GetAltitude() >= 0)
     {
         return true;
     }
