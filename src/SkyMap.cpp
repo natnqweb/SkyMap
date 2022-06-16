@@ -17,6 +17,23 @@ SkyMap::SkyMap(degs lattitude, degs longitude, degs declination, hrs right_ascen
         Calculate_all();
     }
 }
+SkyMap::SkyMap(ObserverPosition observer, CelestialObject *celestialobject, DateTimeValues datetime)
+{
+
+    _lattitude = observer.lattitude;
+    _longitude = observer.longitude;
+    _declination = celestialobject->GetDec();
+    _right_ascension = celestialobject->GetRA();
+    _time = datetime.time;
+    _year = datetime.year;
+    _month = datetime.month;
+    _day = datetime.day;
+
+    if (_lattitude != 0 && _longitude != 0)
+    {
+        Calculate_all();
+    }
+}
 DateTimeValues SkyMap::DateTime(years year, months month, days day, hrs UTC)
 {
     if (year != 0 && month != 0 && day != 0)
