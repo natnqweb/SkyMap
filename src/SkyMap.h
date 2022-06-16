@@ -143,6 +143,14 @@ public:
     /**
      * @brief Construct a new SkyMap object
      * when constructor is called without any input arguments you must provide all this information later in program
+     * @param ObserverPosition Observer position
+     * @param DateTimeValues Date and time values
+     * @param CelestialObject Celestial object
+     */
+    SkyMap::SkyMap(ObserverPosition observer, CelestialObject *celestialobject, DateTimeValues datetime);
+    /**
+     * @brief Construct a new SkyMap object
+     * when constructor is called without any input arguments you must provide all this information later in program
      *
      * @param lattitude - default value:0, type: float, details: geographic coordinates
      * @param longitude - default value:0, type: float, details: geographic coordinates
