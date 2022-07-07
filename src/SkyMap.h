@@ -167,24 +167,39 @@ public:
      * so your location is taken for further calculations
      * if your location is not constant you may want to provide it as an input for this function
      *
-     * @param lattitude - default value:0, type: float, details: geographic coordinates
-     * @param longitude - default value:0, type: float, details: geographic coordinates
-     * @return degs* return pointer to array where first argument is your lattitude and next is your longitude so it looks like this lat=*p; long=*(p+1)
+     * @param lattitude -  type: float, details: geographic coordinates
+     * @param longitude -  type: float, details: geographic coordinates
+     * @return ObserverPosition return  your lattitude and longitude
      */
-    ObserverPosition my_location(degs lattitude = 0, degs longitude = 0); // returns pointer to array where your location is stored or when provided data it can update your position
+    ObserverPosition my_location(degs lattitude, degs longitude); // returns pointer to array where your location is stored or when provided data it can update your position
+    /**
+     * @brief function transfers your location deeper to program,
+     * so your location is taken for further calculations
+     * if your location is not constant you may want to provide it as an input for this function
+     * @return ObserverPosition return  your lattitude and longitude
+     */
+    ObserverPosition my_location(); // returns pointer to array where your location is stored or when provided data it can update your position
     /** @brief function:star_ra_dec
      * this is another way to feed data for calculations input star coordinates
      * @param right_ascension - default value:0, type: float, details: Star coordinates
      * @param declination - default value:0, type: float, details: Star coordinates
      * @return returns Star coordinates
      */
-    Star star_ra_dec(hrs right_ascension = 0, degs declination = 0);
+    Star star_ra_dec(hrs right_ascension, degs declination);
+    /** @brief function:star_ra_dec
+     * @return returns Star coordinates
+     */
+    Star star_ra_dec();
     /** @brief function:CelebralObject_ra_dec
      * this is another way to feed data for calculations input star coordinates
      * @param celestial_object - default value:nullptr, type: CelestialObject(float,float), details: Star coordinates
      * @return returns Star coordinates in form of CelestialObject*
      */
-    CelestialObject *celestial_object_ra_dec(CelestialObject *celestial_object = nullptr);
+    CelestialObject *celestial_object_ra_dec(CelestialObject *celestial_object);
+    /** @brief function:CelebralObject_ra_dec
+     * @return returns Star coordinates in form of CelestialObject*
+     */
+    CelestialObject *celestial_object_ra_dec();
     /**
      * @brief function transforms current local time to UTC
      *
@@ -198,23 +213,33 @@ public:
     /**
      * @brief if you want to perform realtime calculations you update time and date for calculations calling this function
      *
-     * @param year - default value:0, type: float, details: datetime, current year
-     * @param month - default value:0, type: float, details: datetime, current month
-     * @param day - default value:0, type: float, details: datetime, current day
-     * @param UTC - default value:0, type: float, details: datetime, current time utc.
-     * @return DateTime
+     * @param year -  type: float, details: datetime, current year
+     * @param month -  type: float, details: datetime, current month
+     * @param day -  type: float, details: datetime, current day
+     * @param UTC -  type: float, details: datetime, current time utc.
+     * @return DateTimeValues
      */
-    DateTimeValues DateTime(years year = 0, months month = 0, days day = 0, hrs UTC = 0);
+    DateTimeValues DateTime(years year, months month, days day, hrs UTC);
+    /**
+     * @brief Datetimevalues getter
+     * @return DateTimeValues
+     */
+    DateTimeValues DateTime();
     /**
      * @brief Calculating the days from J2000 the reference date is J2000, which corresponds to 1200 hrs UT on Jan 1st 2000 AD
      *
-     * @param Y- year - default value:0, type: float, details: datetime, current year
-     * @param M  month - default value:0, type: float, details: datetime, current month
-     * @param D  day - default value:0, type: float, details: datetime, current day
-     * @param TIME   - default value:0, type: float, details: datetime, current time utc.
+     * @param Y- year -  type: float, details: datetime, current year
+     * @param M  month -  type: float, details: datetime, current month
+     * @param D  day -  type: float, details: datetime, current day
+     * @param TIME   -  type: float, details: datetime, current time utc.
      * @return days returns number of days since J2000 type:float
      */
-    days J2000(years Y = 0, months M = 0, days D = 0, hrs TIME = 0);
+    days J2000(years Y, months M, days D, hrs TIME);
+    /**
+     * @brief J2000 Getter
+     * @return days returns number of days since J2000 type:float
+     */
+    days J2000();
     /**
      * @brief calculates Local_Sidereal_Time and stores it.:
      *  is a timekeeping system that astronomers use to locate celestial objects. Using sidereal time, it is possible to easily point a telescope to the proper coordinates in the night sky. In short, sidereal time is a "time scale that is based on Earth's rate of rotation measured relative to the fixed stars"
@@ -223,7 +248,12 @@ public:
      * @param longitude - default value:0, type: float, details: geographic coordinates
      * @return degs return local sidereal time
      */
-    degs Local_Sidereal_Time(days j2000 = 0, hrs time = 0, degs longitude = 0);
+    degs Local_Sidereal_Time(days j2000, hrs time, degs longitude);
+    /**
+     * @brief LST getter
+     * @return degs return local sidereal time
+     */
+    degs Local_Sidereal_Time();
     /**
      * @brief the hour angle is the angle between two planes: one containing Earth's axis and the zenith (the meridian plane), and the other containing Earth's axis and a given point of interest (the hour circle)
      *
@@ -231,7 +261,12 @@ public:
      * @param right_ascension
      * @return degs
      */
-    degs Hour_Angle(degs LST = 0, hrs right_ascension = 0); // calculates hour_angle and stores it
+    degs Hour_Angle(degs LST, hrs right_ascension); // calculates hour_angle and stores it
+    /**
+     * @brief the hour angle is the angle between two planes: one containing Earth's axis and the zenith (the meridian plane), and the other containing Earth's axis and a given point of interest (the hour circle)
+     * @return Hour angle in degs
+     */
+    degs Hour_Angle();
     /**
      * @brief calculate az and alt , returns pointer to array where the az and alt is stored
      *
@@ -240,7 +275,12 @@ public:
      * @param lattitude
      * @return SearchResult
      */
-    SearchResult calculate_AZ_alt(degs hour_angle = 0, degs declination = 0, degs lattitude = 0);
+    SearchResult calculate_AZ_alt(degs hour_angle, degs declination, degs lattitude);
+    /**
+     * @brief calculate az and alt , returns pointer to array where the az and alt is stored
+     * @return SearchResult
+     */
+    SearchResult calculate_AZ_alt();
     /**
      * @brief perform all necessary calculations and after this function is called you can use get_star_azimuth and get_star_altitude
      * it is called automatically when using update() or when all data is provided in constuctor
