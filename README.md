@@ -1,15 +1,17 @@
 # SkyMap
+
 Tool that let you calculate star azimuth altitude, in any given time and any given position
 i provided some examples
 in examples we observate sirius from los angeles
 as you will see in examples under you can gather some interesting data as for example hour angle or days from j2000 or local sidereal time and even you can calculate UTC for your timezone
+
 # Install tutorial here
-https://www.ardu-badge.com/SkyMap
 
-
-
+<https://www.ardu-badge.com/SkyMap>
 
 # constructor example observation object-Sirius - observation location los angeles ----Lat 34deg 3min 8 sec North----Long 118deg 14 min  37 sec WEST---- observation time 20:12UTC date: 4.september.2021
+
+```C++
     #include <SkyMap.h>
     degs lattitude = 34.06;
     degs longitude = 118.24358;
@@ -18,7 +20,7 @@ https://www.ardu-badge.com/SkyMap
     years year = 2021;
     months month = 9;
     days day = 4;
-    hrs time = 20.2;
+    hrs s_time = 20.2;
     enum Directions : int8_t
     {
     N = 1,
@@ -26,26 +28,27 @@ https://www.ardu-badge.com/SkyMap
     E = 1,
     W = -1
     };
-    
 
 
-    SkyMap star(lattitude *N, longitude *W, declination, right_ascension, year, month, day, time);
-    
-# Step by Step example
-        #include <SkyMap.h>
+    SkyMap star(lattitude *N, longitude *W, declination, right_ascension, year, month, day, s_time);
+```
+
+# Step by Step example without creating new SkyMap object 
+
+```C++
+    #include <SkyMap.h>
     // data you must provide
-    float year, month, day, hour, minute, second; //date and time can be taken from rtc
-    float local_timezone_offset;
-    float Time_utc;             //we will convert it from your time +offset
-    float lattitude, longitude; //your lat and long can be taken from gps or hardcoded
-    float RA, dec;              // can be taken from internet just look for star you are interested in
-    float j2000;                //days since jan 2000  - to be calculated
-    float Local_sidereal_time;  //to be calculated
-    float Hour_angle;           // to be calculated
-    float *p;                   // pointer to results
-    float Az;                   //finally Azimuth of star and altitude
-    float Alt;
-    SkyMap sm;
+    double year, month, day, hour, minute, second; //date and time can be taken from rtc
+    double local_timezone_offset;
+    double Time_utc;             //we will convert it from your time +offset
+    double lattitude, longitude; //your lat and long can be taken from gps or hardcoded
+    double RA, dec;              // can be taken from internet just look for star you are interested in
+    double j2000;                //days since jan 2000  - to be calculated
+    double Local_sidereal_time;  //to be calculated
+    double Hour_angle;           // to be calculated
+    double *p;                   // pointer to results
+    double Az;                   //finally Azimuth of star and altitude
+    double Alt;
 
     void setup()
     {
@@ -64,13 +67,13 @@ https://www.ardu-badge.com/SkyMap
         longitude = -118.24358;                                                  //los angeles
         RA = 101.52;                                                             //sirius
         dec = -16.7424;                                                          //sirius
-        Time_utc = sm.Hh_mm_ss2UTC(hour, minute, second, local_timezone_offset); //converting to UTC
-        j2000 = sm.J2000(year, month, day, Time_utc);
-        Local_sidereal_time = sm.Local_Sidereal_Time(j2000, Time_utc, longitude);
-        Hour_angle = sm.Hour_Angle(Local_sidereal_time, RA);
-        p = sm.calculate_AZ_alt(Hour_angle, dec, lattitude);
-        Az = *p;
-        Alt = *(p + 1);
+        Time_utc = Skymap.Hh_mm_ss2UTC(hour, minute, second, local_timezone_offset); //converting to UTC
+        j2000 = Skymap.J2000(year, month, day, Time_utc);
+        Local_sidereal_time = Skymap.Local_Sidereal_Time(j2000, Time_utc, longitude);
+        Hour_angle = Skymap.Hour_Angle(Local_sidereal_time, RA);
+        SearchResult result = Skymap.calculate_AZ_alt(Hour_angle, dec, lattitude);
+        Az = result.GetAzimuth();
+        Alt = result.GetAltitude();
     }
     void loop()
     {
@@ -80,5 +83,4 @@ https://www.ardu-badge.com/SkyMap
         Serial.println(Alt);
         delay(3000);
     }
-     
-
+```

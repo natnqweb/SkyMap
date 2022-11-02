@@ -1,10 +1,10 @@
 #include <SkyMap.h>
 SkyMap sirius;
 
-float los_angeles_lattitude = 34.06, los_angeles_longitude = -118.24358; //observation location -- los angeles
-float year = 2021, month = 9, day = 4, UTC_TIME = 20.50;                 // date and time of observation we plan
-float Sirius_right_ascension = 101.52, Sirius_Declination = -16.7424;    //sirius declination and right_ascension read from astronmical data site // note that i changed RA from hours to degrees
-float Azimuth, Altitude;                                                 //variables to store alt and az of sirius
+double los_angeles_lattitude = 34.06, los_angeles_longitude = -118.24358; //observation location -- los angeles
+double year = 2021, month = 9, day = 4, UTC_TIME = 20.50;                 // date and time of observation we plan
+double Sirius_right_ascension = 101.52, Sirius_Declination = -16.7424;    //sirius declination and right_ascension read from astronmical data site // note that i changed RA from hours to degrees
+double Azimuth, Altitude;                                                 //variables to store alt and az of sirius
 
 void setup()
 {

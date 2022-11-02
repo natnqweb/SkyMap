@@ -1,9 +1,9 @@
 #include <SkyMap.h>
-float Hour_angle = 54.382617, Declination = 36.466667; // if you calculated Hour Angle by your own you can go straight to transision from HA DEC to ALT AZ;
-float your_lattitude = 52.5;
+double Hour_angle = 54.382617, Declination = 36.466667; // if you calculated Hour Angle by your own you can go straight to transision from HA DEC to ALT AZ;
+double your_lattitude = 52.5;
 SearchResult result;
-float Az;
-float Alt;
+double Az;
+double Alt;
 void setup()
 {
     Serial.begin(9600);

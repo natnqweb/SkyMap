@@ -1,8 +1,8 @@
 #include <SkyMap.h>
 
-float Hour_angle;
-float local_sidereal_time = 0; //place here your lst
-float right_ascension = 0;     //here star RA;
+double Hour_angle;
+double local_sidereal_time = 0; //place here your lst
+double right_ascension = 0;     //here star RA;
 SkyMap sm;
 void setup()
 {

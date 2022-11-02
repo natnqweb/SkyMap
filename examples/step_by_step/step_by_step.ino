@@ -1,16 +1,16 @@
 #include <SkyMap.h>
 // data you must provide
-float year, month, day, hour, minute, second; // date and time can be taken from rtc
-float local_timezone_offset;
-float Time_utc;             // we will convert it from your time +offset
-float lattitude, longitude; // your lat and long can be taken from gps or hardcoded
-float RA, dec;              // can be taken from internet just look for star you are interested in
-float j2000;                // days since jan 2000  - to be calculated
-float Local_sidereal_time;  // to be calculated
-float Hour_angle;           // to be calculated
+double year, month, day, hour, minute, second; // date and time can be taken from rtc
+double local_timezone_offset;
+double Time_utc;             // we will convert it from your time +offset
+double lattitude, longitude; // your lat and long can be taken from gps or hardcoded
+double RA, dec;              // can be taken from internet just look for star you are interested in
+double j2000;                // days since jan 2000  - to be calculated
+double Local_sidereal_time;  // to be calculated
+double Hour_angle;           // to be calculated
 SearchResult result;        // pointer to results
-float Az;                   // finally Azimuth of star and altitude
-float Alt;
+double Az;                   // finally Azimuth of star and altitude
+double Alt;
 
 void setup()
 {
