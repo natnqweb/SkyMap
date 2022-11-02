@@ -30,7 +30,7 @@ enum Directions : int8_t
 };
 
 SkyMap star(lattitude* N, longitude* W, declination, right_ascension, year, month, day, s_time);
-// SkyMap star(lattitude, longitude, declination, right_ascension, year, month, day, time);
+// SkyMap star(lattitude, longitude, declination, right_ascension, year, month, day, s_time);
 void setup()
 {
     Serial.begin(115200);
