@@ -41,7 +41,7 @@ struct DateTimeValues
     years year;
     months month;
     days day;
-    hrs a_time;
+    hrs m_time;
 };
 /**
  * @brief Structure for storing observer information
@@ -144,7 +144,7 @@ public:
      * @param DateTimeValues Date and time values
      * @param CelestialObject Celestial object
      */
-    SkyMap(ObserverPosition observer, CelestialObject* celestialobject, DateTimeValues datetime);
+    SkyMap(ObserverPosition observer, CelestialObject* celestial_object, DateTimeValues datetime);
     /**
      * @brief Construct a new SkyMap object
      * when constructor is called without any input arguments you must provide all this information later in program
@@ -187,12 +187,14 @@ public:
      * @return returns Star coordinates
      */
     Star star_ra_dec();
+    void star_ra_dec(const Star& a_star);
     /** @brief function:CelebralObject_ra_dec
      * this is another way to feed data for calculations input star coordinates
      * @param celestial_object - default value:nullptr, type: CelestialObject(double,double), details: Star coordinates
      * @return returns Star coordinates in form of CelestialObject*
      */
     CelestialObject* celestial_object_ra_dec(CelestialObject* celestial_object);
+    void celestial_object_ra_dec(const CelestialObject& celestial_object);
     /** @brief function:CelebralObject_ra_dec
      * @return returns Star coordinates in form of CelestialObject*
      */
@@ -308,7 +310,8 @@ public:
      * @param day
      * @param time
      */
-    void update(degs lattitude = 0, degs longitude = 0, degs declination = 0, hrs right_ascension = 0, years year = 0, months month = 0, days day = 0, hrs a_time = 0); // if you created empty constructor you can provide all data here then use get..() functions
+    void update(degs lattitude, degs longitude, degs declination, hrs right_ascension, years year, months month, days day, hrs a_time); // if you created empty constructor you can provide all data here then use get..() functions
+    void update(const ObserverPosition& observer_position, const CelestialObject& celestial_object, const DateTimeValues& dt_values);
     /**
      * @brief convert degrees to radians
      *
@@ -336,7 +339,7 @@ public:
      *
      * @return SearchResult
      */
-    SearchResult get_star_search_result();
+    SearchResult get_search_result();
     /**
      * @brief function returns pointer to the celestial object
      *

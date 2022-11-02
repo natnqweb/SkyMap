@@ -24,7 +24,7 @@ SkyMap::SkyMap(ObserverPosition observer, CelestialObject* celestialobject, Date
     _longitude = observer.longitude;
     _declination = celestialobject->GetDec();
     _right_ascension = celestialobject->GetRA();
-    m_time = datetime.a_time;
+    m_time = datetime.m_time;
     _year = datetime.year;
     _month = datetime.month;
     _day = datetime.day;
@@ -74,6 +74,14 @@ Star SkyMap::star_ra_dec(hrs right_ascension, degs declination)
     return _star;
 }
 
+void SkyMap::star_ra_dec(const Star& a_star)
+{
+    _right_ascension = ((CelestialObject*)(&a_star))->GetRA();
+    _declination = ((CelestialObject*)(&a_star))->GetDec();
+    _star.SetRA(_right_ascension);
+    _star.SetDec(_declination);
+}
+
 Star SkyMap::star_ra_dec()
 {
     return _star;
@@ -89,6 +97,14 @@ CelestialObject* SkyMap::celestial_object_ra_dec(CelestialObject* celestial_obje
         _star.SetDec(_declination);
     }
     return &_star;
+}
+
+void SkyMap::celestial_object_ra_dec(const CelestialObject& obj)
+{
+    _right_ascension = ((CelestialObject*)(&obj))->GetRA();
+    _declination = ((CelestialObject*)(&obj))->GetDec();
+    _star.SetRA(_right_ascension);
+    _star.SetDec(_declination);
 }
 
 CelestialObject* SkyMap::celestial_object_ra_dec()
@@ -280,7 +296,7 @@ degs SkyMap::get_star_Altitude()
     return _search_result.GetAltitude();
 }
 
-SearchResult SkyMap::get_star_search_result()
+SearchResult SkyMap::get_search_result()
 {
     return _search_result;
 }
@@ -300,18 +316,26 @@ void SkyMap::update(degs lattitude, degs longitude, degs declination, hrs right_
     Calculate_all();
 }
 
+void SkyMap::update(const ObserverPosition& observer_position, const CelestialObject& celestial_object, const DateTimeValues& dt_values)
+{
+    _lattitude = observer_position.lattitude;
+    _longitude = observer_position.longitude;
+    _declination = ((CelestialObject*)(&celestial_object))->GetDec();
+    _right_ascension = ((CelestialObject*)(&celestial_object))->GetRA();
+    m_time = dt_values.m_time;
+    _year = dt_values.year;
+    _month = dt_values.month;
+    _day = dt_values.day;
+    _day += newday;
+    Calculate_all();
+}
+
 CelestialObject* SkyMap::get_celestial_object()
 {
     return &_star;
 };
+
 bool SkyMap::IsVisible()
 {
-    if (_search_result.GetAltitude() >= 0)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return _search_result.GetAltitude() >= 0;
 }
