@@ -2,10 +2,10 @@
 //this program will show where the sirius is in sky when you will observe him exactly at same day and same time of month for every month
 SkyMap Sirius;
 
-float los_angeles_lattitude = 34.06, los_angeles_longitude = -118.24358; //observation location -- los angeles
-float year = 2021, month = 1, day = 4, UTC_TIME = 20.50;                 // date and time of observation we plan
-float Sirius_right_ascension = 101.52, Sirius_Declination = -16.7424;    //sirius declination and right_ascension read from astronmical data site // note that i changed RA from hours to degrees
-float Azimuth, Altitude;                                                 //variables to store alt and az of sirius
+double los_angeles_lattitude = 34.06, los_angeles_longitude = -118.24358; //observation location -- los angeles
+double year = 2021, month = 1, day = 4, UTC_TIME = 20.50;                 // date and time of observation we plan
+double Sirius_right_ascension = 101.52, Sirius_Declination = -16.7424;    //sirius declination and right_ascension read from astronmical data site // note that i changed RA from hours to degrees
+double Azimuth, Altitude;                                                 //variables to store alt and az of sirius
 void setup()
 {
     Serial.begin(9600);

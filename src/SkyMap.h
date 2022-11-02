@@ -5,13 +5,13 @@
  * @author @b Natan @b Lisowski @github: @b @natnqweb   @email: @c pythonboardsbeta@gmail.com
  *
  * */
-// this library is powerful tool created by me to calculate star position of any star
-// if has given RA and DEC
-//  by simply providing a data from gps and RTC you can calculate
-// star position in any time
-//  i created this tool to use it in my StarTracking device
-//  actual speed of calculations measured in UNO R3 is 1400 [us] [micro seconds]
-// this should work on any board im using only standard math library
+ // this library is powerful tool created by me to calculate star position of any star
+ // if has given RA and DEC
+ //  by simply providing a data from gps and RTC you can calculate
+ // star position in any time
+ //  i created this tool to use it in my StarTracking device
+ //  actual speed of calculations measured in UNO R3 is 1400 [us] [micro seconds]
+ // this should work on any board im using only standard math library
 #pragma once
 #include <math.h>
 #define DEBUG false
@@ -31,7 +31,7 @@
 /**
  * @brief custom type definitions to represent units
  */
-typedef float hrs, days, rads, degs, years, months;
+typedef double hrs, days, rads, degs, years, months;
 
 /**
  * @brief data structure for storing date and time values
@@ -41,7 +41,7 @@ struct DateTimeValues
     years year;
     months month;
     days day;
-    hrs time;
+    hrs m_time;
 };
 /**
  * @brief Structure for storing observer information
@@ -65,19 +65,16 @@ struct CelestialObject
     virtual degs GetDec() = 0;
     virtual void SetRA(hrs) = 0;
     virtual void SetDec(degs) = 0;
-    virtual ~CelestialObject() = default;
 };
 /**
  * @brief Structure to represent a star
  */
 struct Star : CelestialObject
 {
-    hrs right_ascension;
-    degs declination;
-
-    Star(hrs RA, degs Dec) : right_ascension(RA), declination(Dec) {}
+    hrs right_ascension{};
+    degs declination{};
     Star() = default;
-    ~Star() override = default;
+    Star(hrs RA, degs Dec) : right_ascension(RA), declination(Dec) {}
     hrs GetRA() override
     {
         return right_ascension;
@@ -100,8 +97,8 @@ struct Star : CelestialObject
  */
 struct Planet : public Star
 {
+    Planet() : Star() {}
     Planet(hrs RA, degs Dec) : Star(RA, Dec) {}
-    Planet() = default;
 };
 /**
  * @brief data structure for storing search result Azimuth and Altitude
@@ -109,8 +106,8 @@ struct Planet : public Star
  */
 struct SearchResult
 {
-    degs Azimuth;
-    degs Altitude;
+    degs Azimuth{};
+    degs Altitude{};
     // constructor
     SearchResult(degs Az, degs Alt) : Azimuth(Az), Altitude(Alt) {}
     SearchResult() = default;
@@ -147,19 +144,19 @@ public:
      * @param DateTimeValues Date and time values
      * @param CelestialObject Celestial object
      */
-    SkyMap::SkyMap(ObserverPosition observer, CelestialObject *celestialobject, DateTimeValues datetime);
+    SkyMap(ObserverPosition observer, CelestialObject* celestial_object, DateTimeValues datetime);
     /**
      * @brief Construct a new SkyMap object
      * when constructor is called without any input arguments you must provide all this information later in program
      *
-     * @param lattitude - default value:0, type: float, details: geographic coordinates
-     * @param longitude - default value:0, type: float, details: geographic coordinates
-     * @param declination - default value:0, type: float, details: Star coordinates
-     * @param right_ascension - default value:0, type: float, details: Star coordinates
-     * @param year - default value:0, type: float, details: datetime, current year
-     * @param month - default value:0, type: float, details: datetime, current month
-     * @param day - default value:0, type: float, details: datetime, current day
-     * @param time - default value:0, type: float, details: datetime, current time utc.
+     * @param lattitude - default value:0, type: double, details: geographic coordinates
+     * @param longitude - default value:0, type: double, details: geographic coordinates
+     * @param declination - default value:0, type: double, details: Star coordinates
+     * @param right_ascension - default value:0, type: double, details: Star coordinates
+     * @param year - default value:0, type: double, details: datetime, current year
+     * @param month - default value:0, type: double, details: datetime, current month
+     * @param day - default value:0, type: double, details: datetime, current day
+     * @param a_time - default value:0, type: double, details: datetime, current time utc.
      */
     SkyMap(degs lattitude = 0, degs longitude = 0, degs declination = 0, hrs right_ascension = 0, years year = 0, months month = 0, days day = 0, hrs time = 0); // leave empty if you want to use real_time calculations or provide all data to calculate once and then you can also use update to calculate things in real_time
     /**
@@ -167,8 +164,8 @@ public:
      * so your location is taken for further calculations
      * if your location is not constant you may want to provide it as an input for this function
      *
-     * @param lattitude -  type: float, details: geographic coordinates
-     * @param longitude -  type: float, details: geographic coordinates
+     * @param lattitude -  type: double, details: geographic coordinates
+     * @param longitude -  type: double, details: geographic coordinates
      * @return ObserverPosition return  your lattitude and longitude
      */
     ObserverPosition my_location(degs lattitude, degs longitude); // returns pointer to array where your location is stored or when provided data it can update your position
@@ -181,8 +178,8 @@ public:
     ObserverPosition my_location(); // returns pointer to array where your location is stored or when provided data it can update your position
     /** @brief function:star_ra_dec
      * this is another way to feed data for calculations input star coordinates
-     * @param right_ascension - default value:0, type: float, details: Star coordinates
-     * @param declination - default value:0, type: float, details: Star coordinates
+     * @param right_ascension - default value:0, type: double, details: Star coordinates
+     * @param declination - default value:0, type: double, details: Star coordinates
      * @return returns Star coordinates
      */
     Star star_ra_dec(hrs right_ascension, degs declination);
@@ -190,33 +187,35 @@ public:
      * @return returns Star coordinates
      */
     Star star_ra_dec();
+    void star_ra_dec(const Star& a_star);
     /** @brief function:CelebralObject_ra_dec
      * this is another way to feed data for calculations input star coordinates
-     * @param celestial_object - default value:nullptr, type: CelestialObject(float,float), details: Star coordinates
+     * @param celestial_object - default value:nullptr, type: CelestialObject(double,double), details: Star coordinates
      * @return returns Star coordinates in form of CelestialObject*
      */
-    CelestialObject *celestial_object_ra_dec(CelestialObject *celestial_object);
+    CelestialObject* celestial_object_ra_dec(CelestialObject* celestial_object);
+    void celestial_object_ra_dec(const CelestialObject& celestial_object);
     /** @brief function:CelebralObject_ra_dec
      * @return returns Star coordinates in form of CelestialObject*
      */
-    CelestialObject *celestial_object_ra_dec();
+    CelestialObject* celestial_object_ra_dec();
     /**
      * @brief function transforms current local time to UTC
      *
-     * @param hhh -  hour type:float
-     * @param mmm - minute type:float
-     * @param sss - second type:float
-     * @param your_timezone_offset type:float
-     * @return float returns UTC type: float
+     * @param hhh -  hour type:double
+     * @param mmm - minute type:double
+     * @param sss - second type:double
+     * @param your_timezone_offset type:double
+     * @return double returns UTC type: double
      */
-    float Hh_mm_ss2UTC(float hhh, float mmm, float sss, float your_timezone_offset);
+    double Hh_mm_ss2UTC(double hhh, double mmm, double sss, double your_timezone_offset);
     /**
      * @brief if you want to perform realtime calculations you update time and date for calculations calling this function
      *
-     * @param year -  type: float, details: datetime, current year
-     * @param month -  type: float, details: datetime, current month
-     * @param day -  type: float, details: datetime, current day
-     * @param UTC -  type: float, details: datetime, current time utc.
+     * @param year -  type: double, details: datetime, current year
+     * @param month -  type: double, details: datetime, current month
+     * @param day -  type: double, details: datetime, current day
+     * @param UTC -  type: double, details: datetime, current time utc.
      * @return DateTimeValues
      */
     DateTimeValues DateTime(years year, months month, days day, hrs UTC);
@@ -228,27 +227,27 @@ public:
     /**
      * @brief Calculating the days from J2000 the reference date is J2000, which corresponds to 1200 hrs UT on Jan 1st 2000 AD
      *
-     * @param Y- year -  type: float, details: datetime, current year
-     * @param M  month -  type: float, details: datetime, current month
-     * @param D  day -  type: float, details: datetime, current day
-     * @param TIME   -  type: float, details: datetime, current time utc.
-     * @return days returns number of days since J2000 type:float
+     * @param Y- year -  type: double, details: datetime, current year
+     * @param M  month -  type: double, details: datetime, current month
+     * @param D  day -  type: double, details: datetime, current day
+     * @param TIME   -  type: double, details: datetime, current time utc.
+     * @return days returns number of days since J2000 type:double
      */
     days J2000(years Y, months M, days D, hrs TIME);
     /**
      * @brief J2000 Getter
-     * @return days returns number of days since J2000 type:float
+     * @return days returns number of days since J2000 type:double
      */
     days J2000();
     /**
      * @brief calculates Local_Sidereal_Time and stores it.:
      *  is a timekeeping system that astronomers use to locate celestial objects. Using sidereal time, it is possible to easily point a telescope to the proper coordinates in the night sky. In short, sidereal time is a "time scale that is based on Earth's rate of rotation measured relative to the fixed stars"
      * @param j2000 - to calculate LST we need to know how many days passed since J2000
-     * @param time  - default value:0, type: float, details: datetime, current time utc.
-     * @param longitude - default value:0, type: float, details: geographic coordinates
+     * @param a_time  - default value:0, type: double, details: datetime, current time utc.
+     * @param longitude - default value:0, type: double, details: geographic coordinates
      * @return degs return local sidereal time
      */
-    degs Local_Sidereal_Time(days j2000, hrs time, degs longitude);
+    degs Local_Sidereal_Time(days j2000, hrs a_time, degs longitude);
     /**
      * @brief LST getter
      * @return degs return local sidereal time
@@ -311,7 +310,8 @@ public:
      * @param day
      * @param time
      */
-    void update(degs lattitude = 0, degs longitude = 0, degs declination = 0, hrs right_ascension = 0, years year = 0, months month = 0, days day = 0, hrs time = 0); // if you created empty constructor you can provide all data here then use get..() functions
+    void update(degs lattitude, degs longitude, degs declination, hrs right_ascension, years year, months month, days day, hrs a_time); // if you created empty constructor you can provide all data here then use get..() functions
+    void update(const ObserverPosition& observer_position, const CelestialObject& celestial_object, const DateTimeValues& dt_values);
     /**
      * @brief convert degrees to radians
      *
@@ -339,47 +339,48 @@ public:
      *
      * @return SearchResult
      */
-    SearchResult get_star_search_result();
+    SearchResult get_search_result();
     /**
      * @brief function returns pointer to the celestial object
      *
      * @return CelestialObject*
      */
-    CelestialObject *get_celestial_object();
+    CelestialObject* get_celestial_object();
 
 private:
     bool isvisible = false;
     ObserverPosition _observer_position{};
-    SearchResult _search_result{0, 0};
+    SearchResult _search_result{ 0, 0 };
     Star _star{};
     degs h2deg(hrs h);
     hrs deg2h(degs Deg);
-
     degs asind(rads rad);
     degs acosd(rads rad);
+
     /* angle from the vernal
     equinox measured along the equator. This angle
     is the right ascension */
-    hrs _right_ascension;
-    hrs _time;
+    hrs _right_ascension{ 0 };
+    hrs m_time{ 0 };
     // geographic coordinates
-    degs _lattitude, _longitude;
+    degs _lattitude{ 0 };
+    degs _longitude{ 0 };
     /* The angular separation of a star from the equa-
     torial plane is not affected by the rotation of the
     Earth.This angle is called the declination */
-    degs _declination;
-    years _year;
-    months _month;
+    degs _declination{ 0 };
+    years _year{ 0 };
+    months _month{ 0 };
     /*  the hour angle is the angle between two planes: one containing Earth's axis and the zenith (the meridian plane), and the other containing Earth's axis and a given point of interest (the hour circle) */
-    degs _hourangle;
+    degs _hourangle{ 0 };
     /* is a timekeeping system that astronomers use to locate celestial objects. Using sidereal time, it is possible to easily point a telescope to the proper coordinates in the night sky. In short, sidereal time is a "time scale that is based on Earth's rate of rotation measured relative to the fixed stars" */
-    degs _local_sidereal_time;
+    degs _local_sidereal_time{ 0 };
     /* is a timekeeping system that astronomers use to locate celestial objects. Using sidereal time, it is possible to easily point a telescope to the proper coordinates in the night sky. In short, sidereal time is a "time scale that is based on Earth's rate of rotation measured relative to the fixed stars" */
-    degs _LST;
-    days _day;
-    days _j2000;
-    degs _HA;
-    float _JD;
+    degs _LST{ 0 };
+    days _day{ 0 };
+    days _j2000{ 0 };
+    degs _HA{ 0 };
+    days _JD{ 0 };
     days newday = 0;
 };
 static SkyMap Skymap{};
