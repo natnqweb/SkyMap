@@ -1,13 +1,13 @@
 #include "SkyMap.h"
 
-SkyMap::SkyMap(degs lattitude, degs longitude, degs declination, hrs right_ascension, years year, months month, days day, hrs time)
+SkyMap::SkyMap(degs lattitude, degs longitude, degs declination, hrs right_ascension, years year, months month, days day, hrs a_time)
 {
 
     _lattitude = lattitude;
     _longitude = longitude;
     _declination = declination;
     _right_ascension = right_ascension;
-    _time = time;
+    m_time = a_time;
     _year = year;
     _month = month;
     _day = day;
@@ -17,14 +17,14 @@ SkyMap::SkyMap(degs lattitude, degs longitude, degs declination, hrs right_ascen
         Calculate_all();
     }
 }
-SkyMap::SkyMap(ObserverPosition observer, CelestialObject *celestialobject, DateTimeValues datetime)
+SkyMap::SkyMap(ObserverPosition observer, CelestialObject* celestialobject, DateTimeValues datetime)
 {
 
     _lattitude = observer.lattitude;
     _longitude = observer.longitude;
     _declination = celestialobject->GetDec();
     _right_ascension = celestialobject->GetRA();
-    _time = datetime.time;
+    m_time = datetime.a_time;
     _year = datetime.year;
     _month = datetime.month;
     _day = datetime.day;
@@ -40,14 +40,14 @@ DateTimeValues SkyMap::DateTime(years year, months month, days day, hrs UTC)
     _year = year;
     _month = month;
     _day = day;
-    _time = UTC;
+    m_time = UTC;
     _day += newday;
 
-    return {_year, _month, _day, _time};
+    return { _year, _month, _day, m_time };
 }
 DateTimeValues SkyMap::DateTime()
 {
-    return {_year, _month, _day, _time};
+    return { _year, _month, _day, m_time };
 }
 
 ObserverPosition SkyMap::my_location(degs lattitude, degs longitude)
@@ -57,11 +57,11 @@ ObserverPosition SkyMap::my_location(degs lattitude, degs longitude)
     _longitude = longitude;
     _observer_position.lattitude = _lattitude;
     _observer_position.longitude = _longitude;
-    return {_lattitude, _longitude};
+    return { _lattitude, _longitude };
 }
 ObserverPosition SkyMap::my_location()
 {
-    return {_lattitude, _longitude};
+    return { _lattitude, _longitude };
 }
 
 Star SkyMap::star_ra_dec(hrs right_ascension, degs declination)
@@ -79,7 +79,7 @@ Star SkyMap::star_ra_dec()
     return _star;
 }
 
-CelestialObject *SkyMap::celestial_object_ra_dec(CelestialObject *celestial_object)
+CelestialObject* SkyMap::celestial_object_ra_dec(CelestialObject* celestial_object)
 {
     if (celestial_object)
     {
@@ -91,7 +91,7 @@ CelestialObject *SkyMap::celestial_object_ra_dec(CelestialObject *celestial_obje
     return &_star;
 }
 
-CelestialObject *SkyMap::celestial_object_ra_dec()
+CelestialObject* SkyMap::celestial_object_ra_dec()
 {
     return &_star;
 }
@@ -99,16 +99,16 @@ CelestialObject *SkyMap::celestial_object_ra_dec()
 days SkyMap::J2000(years Y, months M, days D, hrs TIME)
 {
 
-    float JD = (367 * Y - floor(7 * (Y + floor((M + 9) / 12)) / 4) - floor(3 * (floor((Y + (M - 9) / 7) / 100) + 1) / 4) + floor(275 * M / 9) + D + 1721028.5 + TIME / 24);
-    float j2000 = JD - float(2451545);
+    double JD = (367 * Y - floor(7 * (Y + floor((M + 9) / 12)) / 4) - floor(3 * (floor((Y + (M - 9) / 7) / 100) + 1) / 4) + floor(275 * M / 9) + D + 1721028.5 + TIME / 24);
+    double j2000 = JD - double(2451545);
 
     return j2000;
 }
 days SkyMap::J2000()
 {
 
-    _JD = (367 * _year - floor(7 * (_year + floor((_month + 9) / 12)) / 4) - floor(3 * (floor((_year + (_month - 9) / 7) / 100) + 1) / 4) + floor(275 * _month / 9) + _day + 1721028.5 + _time / 24);
-    _j2000 = _JD - float(2451545);
+    _JD = (367 * _year - floor(7 * (_year + floor((_month + 9) / 12)) / 4) - floor(3 * (floor((_year + (_month - 9) / 7) / 100) + 1) / 4) + floor(275 * _month / 9) + _day + 1721028.5 + m_time / 24);
+    _j2000 = _JD - double(2451545);
 
     return _j2000;
 }
@@ -137,10 +137,10 @@ degs SkyMap::rad2deg(rads Rad)
 {
     return Rad * 180 / 3.14159265358979;
 }
-degs SkyMap::Local_Sidereal_Time(days j2000, hrs time, degs longitude)
+degs SkyMap::Local_Sidereal_Time(days j2000, hrs a_time, degs longitude)
 {
 
-    degs LST = 100.46 + 0.985647 * j2000 + longitude + 15 * time;
+    degs LST = 100.46 + 0.985647 * j2000 + longitude + 15 * a_time;
     if (LST < 0)
     {
         LST += 360;
@@ -153,7 +153,7 @@ degs SkyMap::Local_Sidereal_Time(days j2000, hrs time, degs longitude)
 }
 degs SkyMap::Local_Sidereal_Time()
 {
-    _LST = 100.46 + 0.985647 * _j2000 + _longitude + 15 * _time;
+    _LST = 100.46 + 0.985647 * _j2000 + _longitude + 15 * m_time;
     if (_LST < 0)
     {
         _LST += 360;
@@ -208,16 +208,16 @@ cos(A) = ---------------------------------
 A = acos(A)
 If sin(HA) is negative,then AZ = A, otherwise AZ = 360 - A */
 
-    float sinDEC = sinf(deg2rad(declination));
-    float sinHA = sinf(deg2rad(hour_angle));
-    float sinLAT = sinf(deg2rad(lattitude));
-    float cosDEC = cosf(deg2rad(declination));
-    float cosHA = cosf(deg2rad(hour_angle));
-    float cosLAT = cosf(deg2rad(lattitude));
-    float sinALT = (sinDEC * sinLAT) + (cosDEC * cosLAT * cosHA);
+    double sinDEC = sinf(deg2rad(declination));
+    double sinHA = sinf(deg2rad(hour_angle));
+    double sinLAT = sinf(deg2rad(lattitude));
+    double cosDEC = cosf(deg2rad(declination));
+    double cosHA = cosf(deg2rad(hour_angle));
+    double cosLAT = cosf(deg2rad(lattitude));
+    double sinALT = (sinDEC * sinLAT) + (cosDEC * cosLAT * cosHA);
     degs ALT = asinf(sinALT);
-    float cosALT = cosf((ALT));
-    float cosA = (sinDEC - sinALT * sinLAT) / (cosALT * cosLAT);
+    double cosALT = cosf((ALT));
+    double cosA = (sinDEC - sinALT * sinLAT) / (cosALT * cosLAT);
     degs A = acosf(cosA);
     A = rad2deg(A);
     ALT = rad2deg(ALT);
@@ -236,7 +236,7 @@ If sin(HA) is negative,then AZ = A, otherwise AZ = 360 - A */
     _search_result.SetAltitude(ALT);
     return _search_result;
 }
-float SkyMap::Hh_mm_ss2UTC(float hhh, float mmm, float sss, float your_timezone_offset)
+double SkyMap::Hh_mm_ss2UTC(double hhh, double mmm, double sss, double your_timezone_offset)
 {
     hrs converted_to_utc = hhh + mmm / 60 + sss * 0.000277777778;
     converted_to_utc -= your_timezone_offset;
@@ -285,14 +285,14 @@ SearchResult SkyMap::get_star_search_result()
     return _search_result;
 }
 
-void SkyMap::update(degs lattitude, degs longitude, degs declination, hrs right_ascension, years year, months month, days day, hrs time)
+void SkyMap::update(degs lattitude, degs longitude, degs declination, hrs right_ascension, years year, months month, days day, hrs a_time)
 {
 
     _lattitude = lattitude;
     _longitude = longitude;
     _declination = declination;
     _right_ascension = right_ascension;
-    _time = time;
+    m_time = a_time;
     _year = year;
     _month = month;
     _day = day;
@@ -300,7 +300,7 @@ void SkyMap::update(degs lattitude, degs longitude, degs declination, hrs right_
     Calculate_all();
 }
 
-CelestialObject *SkyMap::get_celestial_object()
+CelestialObject* SkyMap::get_celestial_object()
 {
     return &_star;
 };
