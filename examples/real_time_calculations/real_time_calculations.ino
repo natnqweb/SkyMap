@@ -1,6 +1,8 @@
 #include <SkyMap.h>
 //this program will show where the sirius is in sky when you will observe him exactly at same day and same time of month for every month
-SkyMap Sirius;
+
+
+SKYMAP_skymap_t skymap;
 
 double los_angeles_lattitude = 34.06, los_angeles_longitude = -118.24358; //observation location -- los angeles
 double year = 2021, month = 1, day = 4, UTC_TIME = 20.50;                 // date and time of observation we plan
@@ -8,17 +10,18 @@ double Sirius_right_ascension = 101.52, Sirius_Declination = -16.7424;    //siri
 double Azimuth, Altitude;                                                 //variables to store alt and az of sirius
 void setup()
 {
+    SKYMAP_init(&skymap);
     Serial.begin(9600);
 }
 void loop()
 {
-
     month += 1;
     if (month > 12)
         month = 1;
-    Sirius.update(los_angeles_lattitude, los_angeles_longitude, Sirius_Declination, Sirius_right_ascension, year, month, day, UTC_TIME);
-    Azimuth = Sirius.get_star_Azimuth();
-    Altitude = Sirius.get_star_Altitude();
+    SKYMAP_update(&skymap, los_angeles_lattitude, los_angeles_longitude, Sirius_Declination, Sirius_right_ascension, year, month, day, UTC_TIME);
+    SKYMAP_search_result_t search_result = SKYMAP_observe_object(&skymap);
+    Azimuth = search_result.azimuth;
+    Altitude = search_result.altitude;
     Serial.print("observations for month:");
     Serial.println((int)month);
     Serial.print("in los_angeles: ");

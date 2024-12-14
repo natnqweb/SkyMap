@@ -1,386 +1,443 @@
-// created by Natan Lisowski
-//  github --> https://github.com/natnqweb
-//  email -> natanlisowski@gmail.com
-/**
- * @author @b Natan @b Lisowski @github: @b @natnqweb   @email: @c pythonboardsbeta@gmail.com
- *
- * */
- // this library is powerful tool created by me to calculate star position of any star
- // if has given RA and DEC
- //  by simply providing a data from gps and RTC you can calculate
- // star position in any time
- //  i created this tool to use it in my StarTracking device
- //  actual speed of calculations measured in UNO R3 is 1400 [us] [micro seconds]
- // this should work on any board im using only standard math library
-#pragma once
+#ifndef SKYMAP_H
+#define SKYMAP_H
+
 #include <math.h>
-#define DEBUG false
-#ifdef DEBUG
-#if DEBUG == true
-#define START_DEBUG(x) Serial.begin(x)
-#define LOG(y) Serial.println(y)
-#else
-#define START_DEBUG(x)
-#define LOG(y)
-#endif
-#else
-#define START_DEBUG(x)
-#define LOG(y)
-#endif
+
+#define SKYMAP_PI (3.14159265358979)
+
+typedef double SKYMAP_years, SKYMAP_months, SKYMAP_days, SKYMAP_hrs, SKYMAP_rads, SKYMAP_degs;
+
+typedef struct SKYMAP_date_time_values
+{
+    SKYMAP_years year; // The year of the observation
+    SKYMAP_months month; // The month of the observation
+    SKYMAP_days day; // The day of the observation
+    SKYMAP_hrs hour; // The hour of the observation (UTC)
+} SKYMAP_date_time_values_t;
+
+typedef struct SKYMAP_observer_position
+{
+    SKYMAP_degs lattitude; // The latitude of the observer's position
+    SKYMAP_degs longitude; // The longitude of the observer's position
+} SKYMAP_observer_position_t;
+
+typedef struct SKYMAP_celestial_object
+{
+    SKYMAP_hrs right_ascension; // The right ascension of the celestial object (similar to longitude on Earth)
+    SKYMAP_degs declination; // The declination of the celestial object (similar to latitude on Earth)
+} SKYMAP_celestial_object_t, SKYMAP_star_t, SKYMAP_planet_t;
+
+typedef struct SKYMAP_search_result
+{
+    SKYMAP_degs azimuth; // The azimuth angle of the celestial object (measured clockwise from the north)
+    SKYMAP_degs altitude; // The altitude angle of the celestial object (measured from the horizon)
+} SKYMAP_search_result_t;
+
+typedef struct SKYMAP_skymap
+{
+    SKYMAP_observer_position_t observer_position; // The position of the observer (latitude and longitude)
+    SKYMAP_date_time_values_t date_time; // The date and time of the observation
+    SKYMAP_celestial_object_t object_to_search; // The celestial object being searched for (right ascension and declination)
+} SKYMAP_skymap_t;
+
+// Function declarations
 
 /**
- * @brief custom type definitions to represent units
+ * @brief Converts degrees to radians.
+ * @param Deg Angle in degrees.
+ * @return Angle in radians.
  */
-typedef double hrs, days, rads, degs, years, months;
+SKYMAP_rads SKYMAP_deg2rad(SKYMAP_degs Deg);
 
 /**
- * @brief data structure for storing date and time values
+ * @brief Converts radians to degrees.
+ * @param Rad Angle in radians.
+ * @return Angle in degrees.
  */
-struct DateTimeValues
-{
-    years year;
-    months month;
-    days day;
-    hrs m_time;
-};
-/**
- * @brief Structure for storing observer information
- *
- */
-struct ObserverPosition
-{
-    degs lattitude;
-    degs longitude;
-};
+SKYMAP_degs SKYMAP_rad2deg(SKYMAP_rads Rad);
 
 /**
- * @brief interface that represents celestial body
- * @details
- *
+ * @brief Converts hours to degrees.
+ * @param h Time in hours.
+ * @return Angle in degrees.
  */
-struct CelestialObject
+SKYMAP_degs SKYMAP_h2deg(SKYMAP_hrs h);
+
+/**
+ * @brief Converts degrees to hours.
+ * @param deg Angle in degrees.
+ * @return Time in hours.
+ */
+SKYMAP_hrs SKYMAP_deg2h(SKYMAP_degs deg);
+
+/**
+ * @brief Calculates the arcsine of an angle in radians and returns the result in degrees.
+ * @param rad Angle in radians.
+ * @return Angle in degrees.
+ */
+SKYMAP_degs SKYMAP_asind(SKYMAP_rads rad);
+
+/**
+ * @brief Calculates the arccosine of an angle in radians and returns the result in degrees.
+ * @param rad Angle in radians.
+ * @return Angle in degrees.
+ */
+SKYMAP_degs SKYMAP_acosd(SKYMAP_rads rad);
+
+/**
+ * @brief Calculates the number of SKYMAP_days since J2000.0.
+ * @param dt Pointer to a SKYMAP_date_time_values_t structure containing the date and time.
+ * @return Number of SKYMAP_days since J2000.0.
+ */
+SKYMAP_days SKYMAP_j2000(SKYMAP_date_time_values_t* dt);
+
+/**
+ * @brief Calculates the local sidereal time.
+ * @param j2000 Number of SKYMAP_days since J2000.0.
+ * @param a_time Time in hours.
+ * @param longitude Observer's longitude in degrees.
+ * @return Local sidereal time in degrees.
+ */
+SKYMAP_degs SKYMAP_local_sidereal_time(SKYMAP_days j2000, SKYMAP_hrs a_time, SKYMAP_degs longitude);
+
+/**
+ * @brief Calculates the hour angle.
+ * @param lst Local sidereal time in degrees.
+ * @param right_ascension Right ascension of the object in hours.
+ * @return Hour angle in degrees.
+ */
+SKYMAP_degs SKYMAP_hour_angle(SKYMAP_degs lst, SKYMAP_hrs right_ascension);
+
+/**
+ * @brief Searches for an object's position in the sky.
+ * @param hour_angle Hour angle in degrees.
+ * @param declination Declination of the object in degrees.
+ * @param lattitude Observer's latitude in degrees.
+ * @return A SKYMAP_search_result_t structure containing the azimuth and altitude of the object.
+ */
+SKYMAP_search_result_t SKYMAP_search_for_object(SKYMAP_degs hour_angle, SKYMAP_degs declination, SKYMAP_degs lattitude);
+
+/**
+ * @brief Calculates the number of SKYMAP_days since J2000.0 for a given skymap.
+ * @param skymap Pointer to a SKYMAP_skymap_t structure.
+ * @return Number of SKYMAP_days since J2000.0.
+ */
+SKYMAP_days SKYMAP_get_j2000(SKYMAP_skymap_t* skymap);
+
+/**
+ * @brief Calculates the local sidereal time for a given skymap.
+ * @param skymap Pointer to a SKYMAP_skymap_t structure.
+ * @return Local sidereal time in degrees.
+ */
+SKYMAP_degs SKYMAP_get_local_sidereal_time(SKYMAP_skymap_t* skymap);
+
+/**
+ * @brief Calculates the hour angle for a given skymap.
+ * @param skymap Pointer to a SKYMAP_skymap_t structure.
+ * @return Hour angle in degrees.
+ */
+SKYMAP_degs SKYMAP_get_hour_angle(SKYMAP_skymap_t* skymap);
+
+/**
+ * @brief Gets the position of a celestial object in the sky for a given skymap.
+ * @param skymap Pointer to a SKYMAP_skymap_t structure.
+ * @return A SKYMAP_search_result_t structure containing the azimuth and altitude of the star.
+ */
+SKYMAP_search_result_t SKYMAP_observe_object(SKYMAP_skymap_t* skymap);
+
+/**
+ * @brief Updates the skymap with new observer and object parameters.
+ * @param skymap Pointer to a SKYMAP_skymap_t structure.
+ * @param lattitude Observer's latitude in degrees.
+ * @param longitude Observer's longitude in degrees.
+ * @param declination Declination of the object in degrees.
+ * @param right_ascension Right ascension of the object in hours.
+ * @param year Year of the observation.
+ * @param month Month of the observation.
+ * @param day Day of the observation.
+ * @param a_time Time of the observation in hours.
+ */
+void SKYMAP_update(SKYMAP_skymap_t* skymap, SKYMAP_degs lattitude, SKYMAP_degs longitude, SKYMAP_degs declination, SKYMAP_hrs right_ascension, SKYMAP_years year, SKYMAP_months month, SKYMAP_days day, SKYMAP_hrs a_time);
+
+/**
+ * @brief Converts time from hours, minutes, and seconds to UTC.
+ * @param skymap Pointer to a SKYMAP_skymap_t structure.
+ * @param h Hours.
+ * @param m Minutes.
+ * @param s Seconds.
+ * @param your_timezone_offset Timezone offset from UTC.
+ * @return Time in hours in UTC.
+ */
+SKYMAP_hrs SKYMAP_hh_mm_ss2UTC(SKYMAP_date_time_values_t* dt, double h, double m, double s, double your_timezone_offset);
+
+/**
+ * @brief Initializes the skymap structure with default values.
+ * @param skymap Pointer to a SKYMAP_skymap_t structure.
+ */
+void SKYMAP_init(SKYMAP_skymap_t* skymap);
+
+/**
+ * @brief Checks if an object is visible in the sky.
+ * @param obj Pointer to a SKYMAP_search_result_t structure containing the object's position.
+ * @return 1 if the object is visible, 0 otherwise.
+ */
+int SKYMAP_is_object_visible(SKYMAP_search_result_t* obj);
+
+/**
+ * @brief Checks if an object is visible in the sky for a given skymap.
+ * @param skymap Pointer to a SKYMAP_skymap_t structure.
+ * @return 1 if the object is visible, 0 otherwise.
+ */
+int SKYMAP_is_object_observable(SKYMAP_skymap_t* skymap);
+
+SKYMAP_rads SKYMAP_deg2rad(SKYMAP_degs Deg)
+{
+    return Deg * SKYMAP_PI / 180;
+}
+
+SKYMAP_degs SKYMAP_rad2deg(SKYMAP_rads Rad)
+{
+    return Rad * 180 / SKYMAP_PI;
+}
+
+SKYMAP_degs SKYMAP_h2deg(SKYMAP_hrs h)
+{
+    return h * 15;
+}
+SKYMAP_hrs SKYMAP_deg2h(SKYMAP_degs deg)
+{
+    return deg / 15;
+}
+
+SKYMAP_degs SKYMAP_asind(SKYMAP_rads rad)
+{
+    return asin(SKYMAP_rad2deg(rad));
+}
+
+SKYMAP_degs SKYMAP_acosd(SKYMAP_rads rad)
+{
+    return acos(SKYMAP_rad2deg(rad));
+}
+
+SKYMAP_days SKYMAP_j2000(SKYMAP_date_time_values_t* dt)
 {
 
-    virtual hrs GetRA() = 0;
-    virtual degs GetDec() = 0;
-    virtual void SetRA(hrs) = 0;
-    virtual void SetDec(degs) = 0;
-};
-/**
- * @brief Structure to represent a star
- */
-struct Star : CelestialObject
-{
-    hrs right_ascension{};
-    degs declination{};
-    Star() = default;
-    Star(hrs RA, degs Dec) : right_ascension(RA), declination(Dec) {}
-    hrs GetRA() override
-    {
-        return right_ascension;
-    }
-    degs GetDec() override
-    {
-        return declination;
-    }
-    void SetRA(hrs RA) override
-    {
-        right_ascension = RA;
-    }
-    void SetDec(degs Dec) override
-    {
-        declination = Dec;
-    }
-};
-/**
- * @brief Structure to represent a planet
- */
-struct Planet : public Star
-{
-    Planet() : Star() {}
-    Planet(hrs RA, degs Dec) : Star(RA, Dec) {}
-};
-/**
- * @brief data structure for storing search result Azimuth and Altitude
- *
- */
-struct SearchResult
-{
-    degs Azimuth{};
-    degs Altitude{};
-    // constructor
-    SearchResult(degs Az, degs Alt) : Azimuth(Az), Altitude(Alt) {}
-    SearchResult() = default;
+    double JD = (367.0 * (double)dt->year - floor(7.0 * ((double)dt->year + floor(((double)dt->month + 9.0) / 12.0)) / 4.0) - floor(3.0 * (floor(((double)dt->year + ((double)dt->month - 9.0) / 7.0) / 100.0) + 1.0) / 4.0) + floor(275.0 * (double)dt->month / 9.0) + (double)dt->day + 1721028.5 + dt->hour / 24.0);
+    double j2000 = JD - 2451545.0;
 
-    // setters and getters
-    void SetAzimuth(degs Azimuth)
-    {
-        this->Azimuth = Azimuth;
-    }
-    void SetAltitude(degs Altitude)
-    {
-        this->Altitude = Altitude;
-    }
-    degs GetAzimuth()
-    {
-        return Azimuth;
-    }
-    degs GetAltitude()
-    {
-        return Altitude;
-    }
-};
-/**
- * @brief SkyMap a class that contains all essential functions to perform astronomic calculations
- *
- */
-class SkyMap
+    return j2000;
+}
+
+SKYMAP_degs SKYMAP_local_sidereal_time(SKYMAP_days j2000, SKYMAP_hrs a_time, SKYMAP_degs longitude)
 {
-public:
-    /**
-     * @brief Construct a new SkyMap object
-     * when constructor is called without any input arguments you must provide all this information later in program
-     * @param ObserverPosition Observer position
-     * @param DateTimeValues Date and time values
-     * @param CelestialObject Celestial object
-     */
-    SkyMap(ObserverPosition observer, CelestialObject* celestial_object, DateTimeValues datetime);
-    /**
-     * @brief Construct a new SkyMap object
-     * when constructor is called without any input arguments you must provide all this information later in program
-     *
-     * @param lattitude - default value:0, type: double, details: geographic coordinates
-     * @param longitude - default value:0, type: double, details: geographic coordinates
-     * @param declination - default value:0, type: double, details: Star coordinates
-     * @param right_ascension - default value:0, type: double, details: Star coordinates
-     * @param year - default value:0, type: double, details: datetime, current year
-     * @param month - default value:0, type: double, details: datetime, current month
-     * @param day - default value:0, type: double, details: datetime, current day
-     * @param a_time - default value:0, type: double, details: datetime, current time utc.
-     */
-    SkyMap(degs lattitude = 0, degs longitude = 0, degs declination = 0, hrs right_ascension = 0, years year = 0, months month = 0, days day = 0, hrs time = 0); // leave empty if you want to use real_time calculations or provide all data to calculate once and then you can also use update to calculate things in real_time
-    /**
-     * @brief function transfers your location deeper to program,
-     * so your location is taken for further calculations
-     * if your location is not constant you may want to provide it as an input for this function
-     *
-     * @param lattitude -  type: double, details: geographic coordinates
-     * @param longitude -  type: double, details: geographic coordinates
-     * @return ObserverPosition return  your lattitude and longitude
-     */
-    ObserverPosition my_location(degs lattitude, degs longitude); // returns pointer to array where your location is stored or when provided data it can update your position
-    /**
-     * @brief function transfers your location deeper to program,
-     * so your location is taken for further calculations
-     * if your location is not constant you may want to provide it as an input for this function
-     * @return ObserverPosition return  your lattitude and longitude
-     */
-    ObserverPosition my_location(); // returns pointer to array where your location is stored or when provided data it can update your position
-    /** @brief function:star_ra_dec
-     * this is another way to feed data for calculations input star coordinates
-     * @param right_ascension - default value:0, type: double, details: Star coordinates
-     * @param declination - default value:0, type: double, details: Star coordinates
-     * @return returns Star coordinates
-     */
-    Star star_ra_dec(hrs right_ascension, degs declination);
-    /** @brief function:star_ra_dec
-     * @return returns Star coordinates
-     */
-    Star star_ra_dec();
-    void star_ra_dec(const Star& a_star);
-    /** @brief function:CelebralObject_ra_dec
-     * this is another way to feed data for calculations input star coordinates
-     * @param celestial_object - default value:nullptr, type: CelestialObject(double,double), details: Star coordinates
-     * @return returns Star coordinates in form of CelestialObject*
-     */
-    CelestialObject* celestial_object_ra_dec(CelestialObject* celestial_object);
-    void celestial_object_ra_dec(const CelestialObject& celestial_object);
-    /** @brief function:CelebralObject_ra_dec
-     * @return returns Star coordinates in form of CelestialObject*
-     */
-    CelestialObject* celestial_object_ra_dec();
-    /**
-     * @brief function transforms current local time to UTC
-     *
-     * @param hhh -  hour type:double
-     * @param mmm - minute type:double
-     * @param sss - second type:double
-     * @param your_timezone_offset type:double
-     * @return double returns UTC type: double
-     */
-    double Hh_mm_ss2UTC(double hhh, double mmm, double sss, double your_timezone_offset);
-    /**
-     * @brief if you want to perform realtime calculations you update time and date for calculations calling this function
-     *
-     * @param year -  type: double, details: datetime, current year
-     * @param month -  type: double, details: datetime, current month
-     * @param day -  type: double, details: datetime, current day
-     * @param UTC -  type: double, details: datetime, current time utc.
-     * @return DateTimeValues
-     */
-    DateTimeValues DateTime(years year, months month, days day, hrs UTC);
-    /**
-     * @brief Datetimevalues getter
-     * @return DateTimeValues
-     */
-    DateTimeValues DateTime();
-    /**
-     * @brief Calculating the days from J2000 the reference date is J2000, which corresponds to 1200 hrs UT on Jan 1st 2000 AD
-     *
-     * @param Y- year -  type: double, details: datetime, current year
-     * @param M  month -  type: double, details: datetime, current month
-     * @param D  day -  type: double, details: datetime, current day
-     * @param TIME   -  type: double, details: datetime, current time utc.
-     * @return days returns number of days since J2000 type:double
-     */
-    days J2000(years Y, months M, days D, hrs TIME);
-    /**
-     * @brief J2000 Getter
-     * @return days returns number of days since J2000 type:double
-     */
-    days J2000();
-    /**
-     * @brief calculates Local_Sidereal_Time and stores it.:
-     *  is a timekeeping system that astronomers use to locate celestial objects. Using sidereal time, it is possible to easily point a telescope to the proper coordinates in the night sky. In short, sidereal time is a "time scale that is based on Earth's rate of rotation measured relative to the fixed stars"
-     * @param j2000 - to calculate LST we need to know how many days passed since J2000
-     * @param a_time  - default value:0, type: double, details: datetime, current time utc.
-     * @param longitude - default value:0, type: double, details: geographic coordinates
-     * @return degs return local sidereal time
-     */
-    degs Local_Sidereal_Time(days j2000, hrs a_time, degs longitude);
-    /**
-     * @brief LST getter
-     * @return degs return local sidereal time
-     */
-    degs Local_Sidereal_Time();
-    /**
-     * @brief the hour angle is the angle between two planes: one containing Earth's axis and the zenith (the meridian plane), and the other containing Earth's axis and a given point of interest (the hour circle)
-     *
-     * @param LST -local sidereal time
-     * @param right_ascension
-     * @return degs
-     */
-    degs Hour_Angle(degs LST, hrs right_ascension); // calculates hour_angle and stores it
-    /**
-     * @brief the hour angle is the angle between two planes: one containing Earth's axis and the zenith (the meridian plane), and the other containing Earth's axis and a given point of interest (the hour circle)
-     * @return Hour angle in degs
-     */
-    degs Hour_Angle();
-    /**
-     * @brief calculate az and alt , returns pointer to array where the az and alt is stored
-     *
-     * @param hour_angle
-     * @param declination
-     * @param lattitude
-     * @return SearchResult
-     */
-    SearchResult calculate_AZ_alt(degs hour_angle, degs declination, degs lattitude);
-    /**
-     * @brief calculate az and alt , returns pointer to array where the az and alt is stored
-     * @return SearchResult
-     */
-    SearchResult calculate_AZ_alt();
-    /**
-     * @brief perform all necessary calculations and after this function is called you can use get_star_azimuth and get_star_altitude
-     * it is called automatically when using update() or when all data is provided in constuctor
-     *
-     */
-    void Calculate_all();
-    /**
-     * @brief Get the star azimuth object works only if you provide all data at constructor or in update() function and if you previously used calculate_AZ_alt()
-     *
-     * @return * degs
-     */
-    degs get_star_Azimuth();
-    /**
-     * @brief Get the star Altitude object works only if you provide all data at constructor or in update() function and if you previously used calculate_AZ_alt()
-     *
-     * @return degs
-     */
-    degs get_star_Altitude();
-    /**
-     * @brief this function let you
-     *
-     * @param lattitude
-     * @param longitude
-     * @param declination
-     * @param right_ascension
-     * @param year
-     * @param month
-     * @param day
-     * @param time
-     */
-    void update(degs lattitude, degs longitude, degs declination, hrs right_ascension, years year, months month, days day, hrs a_time); // if you created empty constructor you can provide all data here then use get..() functions
-    void update(const ObserverPosition& observer_position, const CelestialObject& celestial_object, const DateTimeValues& dt_values);
-    /**
-     * @brief convert degrees to radians
-     *
-     * @param Deg
-     * @return rads
-     */
-    rads deg2rad(degs Deg);
-    /**
-     * @brief convert radians to degrees
-     *
-     * @param Rad
-     * @return degs
-     */
-    degs rad2deg(rads Rad);
-    // check for star visibility  sometimes user wants to know only if it will be visible or not , function returns true if is visible false if it is not returns value when previously provided data to update function on in constructor what star you want to look at
-    /**
-     * @brief check star visibility at your location
-     *
-     * @return true if star is visible
-     * @return false if star is not visible
-     */
-    bool IsVisible();
-    /**
-     * @brief get star azimuth and altitude
-     *
-     * @return SearchResult
-     */
-    SearchResult get_search_result();
-    /**
-     * @brief function returns pointer to the celestial object
-     *
-     * @return CelestialObject*
-     */
-    CelestialObject* get_celestial_object();
+    SKYMAP_degs LST = 100.46 + 0.985647 * j2000 + longitude + 15. * a_time;
+    if (LST < 0)
+    {
+        LST += 360;
+    }
+    else if (LST > 360)
+    {
+        LST -= 360;
+    }
+    return LST;
+}
 
-private:
-    bool isvisible = false;
-    ObserverPosition _observer_position{};
-    SearchResult _search_result{ 0, 0 };
-    Star _star{};
-    degs h2deg(hrs h);
-    hrs deg2h(degs Deg);
-    degs asind(rads rad);
-    degs acosd(rads rad);
+SKYMAP_degs SKYMAP_hour_angle(SKYMAP_degs lst, SKYMAP_hrs right_ascension)
+{
+    SKYMAP_degs HA = lst - right_ascension;
+    if (HA < 0)
+    {
+        HA += 360;
+    }
+    else if (HA > 360)
+    {
+        HA -= 360;
+    }
+    return HA;
+}
 
-    /* angle from the vernal
-    equinox measured along the equator. This angle
-    is the right ascension */
-    hrs _right_ascension{ 0 };
-    hrs m_time{ 0 };
-    // geographic coordinates
-    degs _lattitude{ 0 };
-    degs _longitude{ 0 };
-    /* The angular separation of a star from the equa-
-    torial plane is not affected by the rotation of the
-    Earth.This angle is called the declination */
-    degs _declination{ 0 };
-    years _year{ 0 };
-    months _month{ 0 };
-    /*  the hour angle is the angle between two planes: one containing Earth's axis and the zenith (the meridian plane), and the other containing Earth's axis and a given point of interest (the hour circle) */
-    degs _hourangle{ 0 };
-    /* is a timekeeping system that astronomers use to locate celestial objects. Using sidereal time, it is possible to easily point a telescope to the proper coordinates in the night sky. In short, sidereal time is a "time scale that is based on Earth's rate of rotation measured relative to the fixed stars" */
-    degs _local_sidereal_time{ 0 };
-    /* is a timekeeping system that astronomers use to locate celestial objects. Using sidereal time, it is possible to easily point a telescope to the proper coordinates in the night sky. In short, sidereal time is a "time scale that is based on Earth's rate of rotation measured relative to the fixed stars" */
-    degs _LST{ 0 };
-    days _day{ 0 };
-    days _j2000{ 0 };
-    degs _HA{ 0 };
-    days _JD{ 0 };
-    days newday = 0;
-};
-static SkyMap Skymap{};
+SKYMAP_search_result_t SKYMAP_search_for_object(SKYMAP_degs hour_angle, SKYMAP_degs declination, SKYMAP_degs lattitude)
+{
+    /*  math behind calculations -- conversion from HA and DEC to ALT and  AZ
+sin(ALT) = sin(DEC) * sin(LAT) + cos(DEC) * cos(LAT) * cos(HA)
+
+ALT = asin(ALT)
+
+           sin(DEC) - sin(ALT) * sin(LAT)
+cos(A) = ---------------------------------
+                cos(ALT) * cos(LAT)
+A = acos(A)
+If sin(HA) is negative,then AZ = A, otherwise AZ = 360 - A */
+    double sinDEC = sin(SKYMAP_deg2rad(declination));
+    double sinHA = sin(SKYMAP_deg2rad(hour_angle));
+    double sinLAT = sin(SKYMAP_deg2rad(lattitude));
+    double cosDEC = cos(SKYMAP_deg2rad(declination));
+    double cosHA = cos(SKYMAP_deg2rad(hour_angle));
+    double cosLAT = cos(SKYMAP_deg2rad(lattitude));
+    double sinALT = (sinDEC * sinLAT) + (cosDEC * cosLAT * cosHA);
+    SKYMAP_degs ALT = asin(sinALT);
+    double cosALT = cos((ALT));
+    double cosA = (sinDEC - sinALT * sinLAT) / (cosALT * cosLAT);
+    SKYMAP_degs A = acos(cosA);
+    A = SKYMAP_rad2deg(A);
+    ALT = SKYMAP_rad2deg(ALT);
+
+    SKYMAP_degs AZ;
+    if (sinHA > 0)
+    {
+        AZ = 360 - A;
+    }
+    else
+    {
+        AZ = A;
+    }
+
+    SKYMAP_search_result_t result;
+    result.azimuth = AZ;
+    result.altitude = ALT;
+
+    return result;
+}
+
+SKYMAP_days SKYMAP_get_j2000(SKYMAP_skymap_t* skymap)
+{
+    return SKYMAP_j2000(&skymap->date_time);
+}
+
+SKYMAP_degs SKYMAP_get_local_sidereal_time(SKYMAP_skymap_t* skymap)
+{
+    return SKYMAP_local_sidereal_time(
+        SKYMAP_get_j2000(skymap),
+        skymap->date_time.hour,
+        skymap->observer_position.longitude
+    );
+}
+
+SKYMAP_degs SKYMAP_get_hour_angle(SKYMAP_skymap_t* skymap)
+{
+    return SKYMAP_hour_angle(
+        SKYMAP_get_local_sidereal_time(skymap),
+        skymap->object_to_search.right_ascension
+    );
+}
+
+SKYMAP_search_result_t SKYMAP_observe_object(SKYMAP_skymap_t* skymap)
+{
+    return SKYMAP_search_for_object(
+        SKYMAP_get_hour_angle(skymap),
+        skymap->object_to_search.declination,
+        skymap->observer_position.lattitude
+    );
+}
+
+void SKYMAP_update(SKYMAP_skymap_t* skymap, SKYMAP_degs lattitude, SKYMAP_degs longitude, SKYMAP_degs declination, SKYMAP_hrs right_ascension, SKYMAP_years year, SKYMAP_months month, SKYMAP_days day, SKYMAP_hrs a_time)
+{
+    skymap->observer_position.lattitude = lattitude;
+    skymap->observer_position.longitude = longitude;
+    skymap->date_time.year = year;
+    skymap->date_time.month = month;
+    skymap->date_time.day = day;
+    skymap->date_time.hour = a_time;
+    skymap->object_to_search.declination = declination;
+    skymap->object_to_search.right_ascension = right_ascension;
+}
+
+SKYMAP_hrs SKYMAP_hh_mm_ss2UTC(SKYMAP_date_time_values_t* dt, double h, double m, double s, double your_timezone_offset) {
+    // Convert hours, minutes, and seconds to total hours
+    SKYMAP_hrs total_hours = h + (m / 60.0) + (s / 3600.0);
+
+    // Adjust for the timezone offset
+    total_hours -= your_timezone_offset;
+
+    // Update the date_time_values structure if the total hours go past midnight
+    if (total_hours < (SKYMAP_hrs)0) {
+        total_hours += (SKYMAP_hrs)24;
+        dt->day -= (SKYMAP_days)1;
+        if ((long)dt->day < 1) {
+            dt->month -= (SKYMAP_months)1;
+            if ((long)dt->month < 1) {
+                dt->month = (SKYMAP_months)12;
+                dt->year -= (SKYMAP_years)1;
+            }
+            // Adjust the day for the previous month
+            if ((long)dt->month == 2) {
+                if ((long)dt->year % 4 == 0 && ((long)dt->year % 100 != 0 || (long)dt->year % 400 == 0)) {
+                    dt->day = (SKYMAP_days)29;
+                }
+                else {
+                    dt->day = (SKYMAP_days)28;
+                }
+            }
+            else if ((long)dt->month == 4 || (long)dt->month == 6 || (long)dt->month == 9 || (long)dt->month == 11) {
+                dt->day = (SKYMAP_days)30;
+            }
+            else {
+                dt->day = (SKYMAP_days)31;
+            }
+        }
+    }
+    else if (total_hours >= (SKYMAP_hrs)24) {
+        total_hours -= (SKYMAP_hrs)24;
+        dt->day += (SKYMAP_days)1;
+        if ((long)dt->month == 2) {
+            if ((long)dt->year % 4 == 0 && ((long)dt->year % 100 != 0 || (long)dt->year % 400 == 0)) {
+                if ((long)dt->day > 29) {
+                    dt->day = (SKYMAP_days)1;
+                    dt->month += (SKYMAP_months)1;
+                }
+            }
+            else {
+                if ((long)dt->day > 28) {
+                    dt->day = (SKYMAP_days)1;
+                    dt->month += (SKYMAP_months)1;
+                }
+            }
+        }
+        else if ((long)dt->month == 4 || (long)dt->month == 6 || (long)dt->month == 9 || (long)dt->month == 11) {
+            if ((long)dt->day > 30) {
+                dt->day = (SKYMAP_days)1;
+                dt->month += (SKYMAP_months)1;
+            }
+        }
+        else {
+            if ((long)dt->day > 31) {
+                dt->day = (SKYMAP_days)1;
+                dt->month += (SKYMAP_months)1;
+            }
+        }
+        if ((long)dt->month > 12) {
+            dt->month = (SKYMAP_months)1;
+            dt->year += (SKYMAP_years)1;
+        }
+    }
+
+    dt->hour = total_hours;
+    return total_hours;
+}
+
+
+void SKYMAP_init(SKYMAP_skymap_t* skymap)
+{
+    SKYMAP_update(skymap,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+    );
+}
+
+int SKYMAP_is_object_visible(SKYMAP_search_result_t* obj)
+{
+    return obj->altitude >= 0;
+}
+
+int SKYMAP_is_object_observable(SKYMAP_skymap_t* skymap)
+{
+    SKYMAP_search_result_t result = SKYMAP_observe_object(skymap);
+    return SKYMAP_is_object_visible(&result);
+}
+#endif // SKYMAP_H

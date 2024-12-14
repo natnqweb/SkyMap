@@ -1,4 +1,4 @@
-# SkyMap (3.0.1)
+# SkyMap (4.0.0)
 # Frequently Asked Questions (FAQ) :
 ## Q1: What is the SkyMap library?
 
@@ -28,28 +28,59 @@ as you will see in examples under you can gather some interesting data as for ex
 
 <https://www.ardu-badge.com/SkyMap>
 
-# constructor example observation object-Sirius - observation location los angeles ----Lat 34deg 3min 8 sec North----Long 118deg 14 min  37 sec WEST---- observation time 20:12UTC date: 4.september.2021
+# example observation object-Sirius - observation location los angeles ----Lat 34deg 3min 8 sec North----Long 118deg 14 min  37 sec WEST---- observation time 20:12UTC date: 4.september.2021
 
 ```C++
-    #include <SkyMap.h>
-    degs lattitude = 34.06;
-    degs longitude = 118.24358;
-    degs declination = -16.7424;
-    degs right_ascension = 6.768 * 15;
-    years year = 2021;
-    months month = 9;
-    days day = 4;
-    hrs s_time = 20.2;
-    enum Directions : int8_t
-    {
+#include <SkyMap.h>
+
+// Always convert right_ascension to SKYMAP_degs!
+// Provided coordinates for Los Angeles:
+// Latitude: 34° 3' 8" N
+// Longitude: 118° 14' 37" W
+// We are observing Sirius:
+// Sirius RA: -6.768 (convert to degrees by multiplying by 15)
+// Sirius DEC: -16.7424
+// Observation date and time: 2021-09-04 at 20:12 UTC
+// Directions: North-positive, South-negative, East-positive, West-negative
+
+// const double latitude = 34.06, longitude = -118.24358, declination = -16.7424, right_ascension = 6.768 * 15, year = 2021, month = 9, day = 4, time = 20.2;
+// Note: For West direction, the value is negative.
+// Use this format if you are unsure.
+
+SKYMAP_degs lattitude = 34.06;
+SKYMAP_degs longitude = 118.24358; // degrees
+SKYMAP_degs declination = -16.7424;
+SKYMAP_degs right_ascension = 6.768 * 15;
+SKYMAP_years year = 2021;
+SKYMAP_months month = 9;
+SKYMAP_days day = 4;
+SKYMAP_hrs s_time = 20.2;
+
+enum Directions : int8_t
+{
     N = 1,
     S = -1,
     E = 1,
     W = -1
-    };
+};
 
+SKYMAP_skymap_t skymap;
 
-    SkyMap star(lattitude *N, longitude *W, declination, right_ascension, year, month, day, s_time);
+void setup()
+{
+    SKYMAP_init(&skymap);
+
+    SKYMAP_update(&skymap, lattitude * N, longitude * W, declination, right_ascension, year, month, day, s_time);
+    SKYMAP_search_result_t star_position = SKYMAP_observe_object(&skymap);
+
+    Serial.begin(115200);
+    Serial.println(star_position.altitude);
+    Serial.println(star_position.azimuth);
+}
+
+void loop()
+{
+}
 ```
 
 # Simple RealTime calculations
@@ -58,29 +89,45 @@ as you will see in examples under you can gather some interesting data as for ex
 #include <SkyMap.h>
 //this program will show where the sirius is in sky when you will observe him exactly at same day and same time of month for every month
 
-ObserverPosition observation_location{ 34.06 ,-118.24358 };                // observation location -- los angeles 
-DateTimeValues dt{ 2021/*year*/,1 /*month*/,4/*day*/,20.50 /*time utc*/ };// date and time of observation we plan  
-Star Sirius{ 101.52 ,-16.7424 };                                          // sirius right_ascension and declination read from astronmical data site // note that i changed RA from hours to degrees
-SearchResult search_result{};                                             // variables to store alt and az of sirius
+SKYMAP_skymap_t skymap;
 void setup()
 {
     Serial.begin(9600);
+
+    SKYMAP_observer_position_t observation_location; // observation location -- los angeles 
+    observation_location.lattitude = 34.06;
+    observation_location.longitude = -118.24358;
+
+    SKYMAP_date_time_values_t dt;
+    dt.year = 2021;
+    dt.month = 1;
+    dt.day = 4;
+    dt.hour = 20.5;// UTC
+
+    SKYMAP_star_t sirius;// sirius right_ascension and declination read from astronmical data site // note that i changed RA from hours to degrees
+    sirius.right_ascension = 101.52;
+    sirius.declination = -16.7424l;
+
+    skymap.observer_position = observation_location;
+    skymap.date_time = dt;
+    skymap.object_to_search = sirius;
 }
 void loop()
 {
 
-    dt.month += 1;
-    if (dt.month > 12)
-        dt.month = 1;
-    Skymap.update(observation_location, Sirius, dt);
-    search_result = Skymap.get_search_result();
+
+    skymap.date_time.month += 1;
+    if (skymap.date_time.month > 12)
+        skymap.date_time.month = 1;
+
+    SKYMAP_search_result_t search_result = SKYMAP_observe_object(&skymap);
     Serial.print("observations for month:");
-    Serial.println((int)dt.month);
+    Serial.println((int)skymap.date_time.month);
     Serial.print("in los_angeles: ");
     Serial.print("lattitude:");
-    Serial.print(observation_location.lattitude);
+    Serial.print(skymap.observer_position.lattitude);
     Serial.print(" longitude:");
-    Serial.print(observation_location.longitude);
+    Serial.print(skymap.observer_position.longitude);
     Serial.println();
     Serial.print("time:");
     Serial.println("20:30 UTC");
@@ -89,9 +136,9 @@ void loop()
     Serial.print("day:");
     Serial.println("4");
     Serial.print("Sirius Azimuth:");
-    Serial.println(search_result.GetAzimuth());
+    Serial.println(search_result.azimuth);
     Serial.print("Sirius Altitude:");
-    Serial.println(search_result.GetAltitude());
+    Serial.println(search_result.altitude);
     Serial.println("---------------------");
     delay(3000);
 }

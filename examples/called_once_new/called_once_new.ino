@@ -1,7 +1,7 @@
 
 #include <SkyMap.h>
 
-// always convert right_ascension to degs!
+// always convert right_ascension to SKYMAP_degs!
 // here i provided los angeles lattitude and longitude
 // and we are going to observe sirius sirius Ra -6.768 - we need to convert to degrees therefore we multiply by 15
 // sirius DEC -16.7424
@@ -13,33 +13,52 @@
 // const double lattitude = 34.06, longitude = -118.24358, declination = -16.7424, right_ascension = 6.768 * 15, year = 2021, month = 9, day = 4, time = 20.2;
 // as you see for West direction value is negative;
 // if you need you can use it like that if you are not sure
-degs lattitude = 34.06;
-degs longitude = 118.24358; // degrees
-degs declination = -16.7424;
-degs right_ascension = 6.768 * 15;
-years year = 2021;
-months month = 9;
-days day = 4;
-hrs s_time = 20.2;
-DateTimeValues dt{ year, month, day, s_time };
-Star sirius{ right_ascension, declination };
+SKYMAP_degs lattitude = 34.06;
+SKYMAP_degs longitude = 118.24358; // degrees
+SKYMAP_degs declination = -16.7424;
+SKYMAP_hrs right_ascension = 6.768 * 15.0;
+SKYMAP_years year = 2021;
+SKYMAP_months month = 9;
+SKYMAP_days day = 4;
+SKYMAP_hrs s_time = 20.2;
 
-enum Directions : int8_t
+
+enum directions_e : int8_t
 {
     N = 1,
     S = -1,
     E = 1,
     W = -1
 };
-ObserverPosition pos{ lattitude * N, longitude * W };
 
-SkyMap sm(pos, &sirius, dt);
+SKYMAP_skymap_t skymap;
 
 void setup()
 {
+    SKYMAP_init(&skymap);
+    SKYMAP_date_time_values_t dt;
+    dt.year = year;
+    dt.month = month;
+    dt.day = day;
+    dt.hour = s_time;
+
+    SKYMAP_observer_position_t pos;
+    pos.lattitude = lattitude * N;
+    pos.longitude = longitude * W;
+
+    SKYMAP_star_t sirius;
+    sirius.right_ascension = right_ascension;
+    sirius.declination = declination;
+
+    skymap.observer_position = pos;
+    skymap.date_time = dt;
+    skymap.object_to_search = sirius;
+
+    SKYMAP_search_result_t star_position = SKYMAP_observe_object(&skymap);
+
     Serial.begin(115200);
-    Serial.println(sm.get_star_Altitude());
-    Serial.println(sm.get_star_Azimuth());
+    Serial.println(star_position.altitude);
+    Serial.println(star_position.azimuth);
 }
 void loop()
 {

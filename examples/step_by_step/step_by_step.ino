@@ -5,10 +5,9 @@ double local_timezone_offset;
 double Time_utc;             // we will convert it from your time +offset
 double lattitude, longitude; // your lat and long can be taken from gps or hardcoded
 double RA, dec;              // can be taken from internet just look for star you are interested in
-double j2000;                // days since jan 2000  - to be calculated
+double j2000;                // SKYMAP_days since jan 2000  - to be calculated
 double Local_sidereal_time;  // to be calculated
 double Hour_angle;           // to be calculated
-SearchResult result;        // pointer to results
 double Az;                   // finally Azimuth of star and altitude
 double Alt;
 
@@ -25,17 +24,22 @@ void setup()
     minute = 30;
     second = 0;
     local_timezone_offset = -7;                                                  // offset for los angeles
+    SKYMAP_date_time_values_t dt;
+    dt.day = day;
+    dt.month = month;
+    dt.year = year;
+    Time_utc = SKYMAP_hh_mm_ss2UTC(&dt, hour, minute, second, local_timezone_offset); // converting to UTC
+
     lattitude = 34.06;                                                           // los angeles
     longitude = -118.24358;                                                      // los angeles
     RA = 101.52;                                                                 // sirius
     dec = -16.7424;                                                              // sirius
-    Time_utc = Skymap.Hh_mm_ss2UTC(hour, minute, second, local_timezone_offset); // converting to UTC
-    j2000 = Skymap.J2000(year, month, day, Time_utc);
-    Local_sidereal_time = Skymap.Local_Sidereal_Time(j2000, Time_utc, longitude);
-    Hour_angle = Skymap.Hour_Angle(Local_sidereal_time, RA);
-    result = Skymap.calculate_AZ_alt(Hour_angle, dec, lattitude);
-    Az = result.GetAzimuth();
-    Alt = result.GetAltitude();
+    j2000 = SKYMAP_j2000(&dt);
+    Local_sidereal_time = SKYMAP_local_sidereal_time(j2000, Time_utc, longitude);
+    Hour_angle = SKYMAP_hour_angle(Local_sidereal_time, RA);
+    SKYMAP_search_result_t result = SKYMAP_search_for_object(Hour_angle, dec, lattitude);
+    Az = result.azimuth;
+    Alt = result.altitude;
 }
 void loop()
 {
