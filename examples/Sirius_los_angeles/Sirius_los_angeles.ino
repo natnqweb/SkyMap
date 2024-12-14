@@ -4,19 +4,40 @@ double los_angeles_lattitude = 34.06, los_angeles_longitude = -118.24358; //obse
 double year = 2021, month = 9, day = 4, UTC_TIME = 20.50;                 // date and time of observation we plan
 double Sirius_right_ascension = 101.52, Sirius_Declination = -16.7424;    //sirius declination and right_ascension read from astronmical data site // note that i changed RA from hours to degrees
 double Azimuth, Altitude;                                                 //variables to store alt and az of sirius
-const Star Sirius{ Sirius_right_ascension, Sirius_Declination };
+
+SKYMAP_skymap_t skymap;
+SKYMAP_star_t Sirius;
+SKYMAP_observer_position_t los_angeles;
+SKYMAP_date_time_values_t observation_time;
+
 void setup()
 {
+    SKYMAP_init(&skymap);
     Serial.begin(9600);
-    Skymap.my_location(los_angeles_lattitude, los_angeles_longitude); // lines from 12 to 14 provide enough data to calculate Azimuth and altitude based on your location and time
-    Skymap.DateTime(year, month, day, UTC_TIME);
-    Skymap.star_ra_dec(Sirius);
-    Skymap.Calculate_all();
-    Altitude = Skymap.get_star_Altitude();
-    Azimuth = Skymap.get_star_Azimuth();
+
+    //SKYMAP_celestial_object_t Sirius;
+    Sirius.right_ascension = Sirius_right_ascension;
+    Sirius.declination = Sirius_Declination;
+
+    los_angeles.lattitude = los_angeles_lattitude;
+    los_angeles.longitude = los_angeles_longitude;
+
+    observation_time.year = year;
+    observation_time.month = month;
+    observation_time.day = day;
+    observation_time.hour = UTC_TIME;
+
 }
 void loop()
 {
+    skymap.object_to_search = Sirius;
+    skymap.observer_position = los_angeles;
+    skymap.date_time = observation_time;
+
+    SKYMAP_search_result_t result = SKYMAP_observe_object(&skymap);
+
+    Altitude = result.altitude;
+    Azimuth = result.azimuth;
 
     Serial.print("Sirius Azimuth:");
     Serial.println(Azimuth);

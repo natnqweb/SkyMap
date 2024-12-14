@@ -32,7 +32,6 @@ void loop()
     if (skymap.date_time.month > 12)
         skymap.date_time.month = 1;
 
-    SKYMAP_search_result_t search_result = SKYMAP_observe_object(&skymap);
     Serial.print("observations for month:");
     Serial.println((int)skymap.date_time.month);
     Serial.print("in los_angeles: ");
@@ -47,10 +46,32 @@ void loop()
     Serial.println("2021");
     Serial.print("day:");
     Serial.println("4");
-    Serial.print("Sirius Azimuth:");
-    Serial.println(search_result.azimuth);
-    Serial.print("Sirius Altitude:");
-    Serial.println(search_result.altitude);
+
+    //// when you want to only know if is observable and you don't care about az and alt
+    // if (SKYMAP_is_object_observable(&skymap))
+    // {
+    //     Serial.println("Sirius is observable");
+    // }
+    // else
+    // {
+    //     Serial.println("Sirius is not observable");
+    // }
+
+    SKYMAP_search_result_t search_result = SKYMAP_observe_object(&skymap);
+
+    if (SKYMAP_is_object_visible(&search_result))
+    {
+        Serial.println("Sirius is observable");
+        Serial.print("Sirius Azimuth:");
+        Serial.println(search_result.azimuth);
+        Serial.print("Sirius Altitude:");
+        Serial.println(search_result.altitude);
+    }
+    else
+    {
+        Serial.println("Sirius is not observable");
+    }
+
     Serial.println("---------------------");
     delay(3000);
 }
