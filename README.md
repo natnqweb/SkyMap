@@ -28,9 +28,65 @@ as you will see in examples under you can gather some interesting data as for ex
 
 <https://www.ardu-badge.com/SkyMap>
 
+# Step by Step calculations
+
+```C
+#include <SkyMap.h>
+// data you must provide
+double year, month, day, hour, minute, second; // date and time can be taken from rtc
+double local_timezone_offset;
+double Time_utc;             // we will convert it from your time +offset
+double lattitude, longitude; // your lat and long can be taken from gps or hardcoded
+double RA, dec;              // can be taken from internet just look for star you are interested in
+double j2000;                // SKYMAP_days since jan 2000  - to be calculated
+double Local_sidereal_time;  // to be calculated
+double Hour_angle;           // to be calculated
+double Az;                   // finally Azimuth of star and altitude
+double Alt;
+
+void setup()
+{
+
+    Serial.begin(9600);
+
+    // date 2021-09-04 time 20:30:00-los angeles time not UTC!, observation object Sirius
+    year = 2021;
+    month = 9;
+    day = 4;
+    hour = 20;
+    minute = 30;
+    second = 0;
+    local_timezone_offset = -7;                                                  // offset for los angeles
+    SKYMAP_date_time_values_t dt;
+    dt.day = day;
+    dt.month = month;
+    dt.year = year;
+    Time_utc = SKYMAP_hh_mm_ss2UTC(&dt, hour, minute, second, local_timezone_offset); // converting to UTC
+
+    lattitude = 34.06;                                                           // los angeles
+    longitude = -118.24358;                                                      // los angeles
+    RA = 101.52;                                                                 // sirius
+    dec = -16.7424;                                                              // sirius
+    j2000 = SKYMAP_j2000(&dt);
+    Local_sidereal_time = SKYMAP_local_sidereal_time(j2000, Time_utc, longitude);
+    Hour_angle = SKYMAP_hour_angle(Local_sidereal_time, RA);
+    SKYMAP_search_result_t result = SKYMAP_search_for_object(Hour_angle, dec, lattitude);
+    Az = result.azimuth;
+    Alt = result.altitude;
+}
+void loop()
+{
+    Serial.print("Azimuth: ");
+    Serial.println(Az);
+    Serial.print("Altitude: ");
+    Serial.println(Alt);
+    delay(3000);
+}
+```
+
 # example observation object-Sirius - observation location los angeles ----Lat 34deg 3min 8 sec North----Long 118deg 14 min  37 sec WEST---- observation time 20:12UTC date: 4.september.2021
 
-```C++
+```C
 #include <SkyMap.h>
 
 // Always convert right_ascension to SKYMAP_degs!
@@ -85,7 +141,7 @@ void loop()
 
 # Simple RealTime calculations
 
-```C++
+```C
 #include <SkyMap.h>
 //this program will show where the sirius is in sky when you will observe him exactly at same day and same time of month for every month
 
