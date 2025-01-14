@@ -465,10 +465,6 @@ SKYMAP_hrs SKYMAP_ra_from_lst_and_ha(SKYMAP_degs lst, SKYMAP_degs ha) {
     if (ra < 0.0) {
         ra += 360.0;
     }
-    else if (fabs(ra - 360.0) < 1e-6)
-    {
-        ra = 0.0;
-    }
 
     return ra;
 }
