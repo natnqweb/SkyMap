@@ -1,4 +1,4 @@
-# SkyMap (4.0.0)
+# SkyMap (4.1.0)
 # Frequently Asked Questions (FAQ) :
 ## Q1: What is the SkyMap library?
 
@@ -24,9 +24,60 @@ i provided some examples
 in examples we observate sirius from los angeles
 as you will see in examples under you can gather some interesting data as for example hour angle or days from j2000 or local sidereal time and even you can calculate UTC for your timezone
 
+## Q6: Can it be used outside of Arduino?
+
+Yes! The SkyMap library is a C-style, header-only library that depends solely on math.h. This means it can be used almost everywhere, as C is a broadly supported language.
+
 # Install tutorial here
 
 <https://www.ardu-badge.com/SkyMap>
+
+# Conversion from azimuth and altitude to right ascension and declination (from SKYMAP 4.1.0)
+
+```C
+/**
+ * @brief Converts the azimuth and altitude of an object to its equatorial coordinates (RA/Dec).
+ * @param geo_position Pointer to a SKYMAP_geo_position_t structure containing the observer's geographic location.
+ * @param local_astr_pos_of_object Pointer to a SKYMAP_local_position_t structure containing the azimuth and altitude of the object.
+ * @param dt Pointer to a SKYMAP_date_time_values_t structure containing the date and time of the observation. in field hour (Coordinated Universal Time)
+ * @return A SKYMAP_astronomical_position_t structure containing the right ascension (RA) and declination (Dec) of the object.
+ */
+SKYMAP_equatorial_coordinates_t SKYMAP_az_alt_to_ra_dec(
+    SKYMAP_geo_position_t* geo_position,
+    SKYMAP_local_position_t* local_astr_pos_of_object,
+    SKYMAP_date_time_values_t* dt);
+
+```
+
+```C
+void test_SKYMAP_directly_az_alt_to_ra_dec() {
+    // New York City coordinates
+    SKYMAP_geo_position_t geo_position;
+    geo_position.latitude = 40.7128;
+    geo_position.longitude = -74.0060;
+
+    // Local astronomical position (Alt/Az)
+    SKYMAP_local_position_t local_astr_pos_of_object;
+    local_astr_pos_of_object.azimuth = 359.89;
+    local_astr_pos_of_object.altitude = 41.44;
+
+    // Direct UTC values for time and date
+    SKYMAP_date_time_values_t dt;
+    dt.year = 2021.0;
+    dt.month = 11.0;
+    dt.day = 28.0;
+    dt.hour = 20.0; //UTC
+
+    // Perform conversion from Alt/Az to RA/Dec
+    SKYMAP_equatorial_coordinates_t result = SKYMAP_az_alt_to_ra_dec(&geo_position, &local_astr_pos_of_object, &dt);
+    Serial.print("result ra = ");
+    Serial.print(result.right_ascension);
+    Serial.print(" result dec = ");
+    Serial.println((result.declination));
+}
+```
+
+More in example - az_alt_to_ra_dec
 
 # Step by Step calculations
 
@@ -36,7 +87,7 @@ as you will see in examples under you can gather some interesting data as for ex
 double year, month, day, hour, minute, second; // date and time can be taken from rtc
 double local_timezone_offset;
 double Time_utc;             // we will convert it from your time +offset
-double lattitude, longitude; // your lat and long can be taken from gps or hardcoded
+double latitude, longitude; // your lat and long can be taken from gps or hardcoded
 double RA, dec;              // can be taken from internet just look for star you are interested in
 double j2000;                // SKYMAP_days since jan 2000  - to be calculated
 double Local_sidereal_time;  // to be calculated
@@ -63,14 +114,14 @@ void setup()
     dt.year = year;
     Time_utc = SKYMAP_hh_mm_ss2UTC(&dt, hour, minute, second, local_timezone_offset); // converting to UTC
 
-    lattitude = 34.06;                                                           // los angeles
+    latitude = 34.06;                                                           // los angeles
     longitude = -118.24358;                                                      // los angeles
     RA = 101.52;                                                                 // sirius
     dec = -16.7424;                                                              // sirius
     j2000 = SKYMAP_j2000(&dt);
     Local_sidereal_time = SKYMAP_local_sidereal_time(j2000, Time_utc, longitude);
     Hour_angle = SKYMAP_hour_angle(Local_sidereal_time, RA);
-    SKYMAP_search_result_t result = SKYMAP_search_for_object(Hour_angle, dec, lattitude);
+    SKYMAP_search_result_t result = SKYMAP_search_for_object(Hour_angle, dec, latitude);
     Az = result.azimuth;
     Alt = result.altitude;
 }
@@ -103,7 +154,7 @@ void loop()
 // Note: For West direction, the value is negative.
 // Use this format if you are unsure.
 
-SKYMAP_degs lattitude = 34.06;
+SKYMAP_degs latitude = 34.06;
 SKYMAP_degs longitude = 118.24358; // degrees
 SKYMAP_degs declination = -16.7424;
 SKYMAP_degs right_ascension = 6.768 * 15;
@@ -126,7 +177,7 @@ void setup()
 {
     SKYMAP_init(&skymap);
 
-    SKYMAP_update(&skymap, lattitude * N, longitude * W, declination, right_ascension, year, month, day, s_time);
+    SKYMAP_update(&skymap, latitude * N, longitude * W, declination, right_ascension, year, month, day, s_time);
     SKYMAP_search_result_t star_position = SKYMAP_observe_object(&skymap);
 
     Serial.begin(115200);
@@ -151,7 +202,7 @@ void setup()
     Serial.begin(9600);
 
     SKYMAP_observer_position_t observation_location; // observation location -- los angeles 
-    observation_location.lattitude = 34.06;
+    observation_location.latitude = 34.06;
     observation_location.longitude = -118.24358;
 
     SKYMAP_date_time_values_t dt;
@@ -180,8 +231,8 @@ void loop()
     Serial.print("observations for month:");
     Serial.println((int)skymap.date_time.month);
     Serial.print("in los_angeles: ");
-    Serial.print("lattitude:");
-    Serial.print(skymap.observer_position.lattitude);
+    Serial.print("latitude:");
+    Serial.print(skymap.observer_position.latitude);
     Serial.print(" longitude:");
     Serial.print(skymap.observer_position.longitude);
     Serial.println();

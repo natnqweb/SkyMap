@@ -14,6 +14,9 @@ SKYMAP_star_t	KEYWORD1
 SKYMAP_planet_t	KEYWORD1
 SKYMAP_search_result_t	KEYWORD1
 SKYMAP_skymap_t	KEYWORD1
+SKYMAP_astronomical_position_t	KEYWORD1
+SKYMAP_equatorial_coordinates_t	KEYWORD1
+SKYMAP_local_position_t	KEYWORD1
 
 # Functions (KEYWORD2)
 SKYMAP_deg2rad	KEYWORD2
@@ -35,5 +38,7 @@ SKYMAP_hh_mm_ss2UTC	KEYWORD2
 SKYMAP_init	KEYWORD2
 SKYMAP_is_object_visible	KEYWORD2
 SKYMAP_is_object_observable	KEYWORD2
+SKYMAP_az_alt_to_ra_dec	KEYWORD2
+SKYMAP_ra_from_lst_and_ha	KEYWORD2
 
 # Constants (LITERAL1)
