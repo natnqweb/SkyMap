@@ -7,28 +7,27 @@
 
 void test_SKYMAP_sirius_los_angeles() {
     // Directly use UTC values for time and date
-    double year = 2021, month = 9, day = 4, hour = 20.5; // 20:30 Los Angeles time in UTC
-    double latitude = 34.06, longitude = -118.24358; // Los Angeles coordinates
-    double RA = 101.52, dec = -16.7424; // Sirius RA and Dec
-    SKYMAP_date_time_values_t dt;
-    dt.day = day;
-    dt.month = month;
-    dt.year = year;
-    dt.hour = hour; //UTC
+    SKYMAP_skymap_t skymap;
+    SKYMAP_init(&skymap);
 
-    // Calculate J2000, Local Sidereal Time, Hour Angle, and Alt/Az
-    double j2000 = SKYMAP_j2000(&dt);
-    double Local_sidereal_time = SKYMAP_local_sidereal_time(j2000, dt.hour, longitude);
-    double Hour_angle = SKYMAP_hour_angle(Local_sidereal_time, RA);
-    SKYMAP_search_result_t result = SKYMAP_search_for_object(Hour_angle, dec, latitude);
+    skymap.observer_position.latitude = 34.06; // Los Angeles coordinates
+    skymap.observer_position.longitude = -118.24358;
 
-    // Perform conversion from Alt/Az back to RA/Dec
-    SKYMAP_geo_position_t geo_position;
-    geo_position.latitude = latitude;
-    geo_position.longitude = longitude;
-    SKYMAP_astronomical_position_t resulta = SKYMAP_az_alt_to_ra_dec(&geo_position, &result, &dt);
+    // 20:30 Los Angeles time in UTC
+    skymap.date_time.day = 4;
+    skymap.date_time.month = 9;
+    skymap.date_time.year = 2021;
+    skymap.date_time.hour = 20.5; // UTC
 
-    if (fabs(resulta.right_ascension - RA) < _EPS_PRECISION && fabs(resulta.declination - dec) < _EPS_PRECISION) {
+    //Sirius
+    skymap.object_to_search.right_ascension = 101.52;
+    skymap.object_to_search.declination = -16.7424;
+
+    SKYMAP_search_result_t result = SKYMAP_observe_object(&skymap);
+
+    SKYMAP_astronomical_position_t resulta = SKYMAP_az_alt_to_ra_dec(&skymap.observer_position, &result, &skymap.date_time);
+
+    if (fabs(resulta.right_ascension - skymap.object_to_search.right_ascension) < _EPS_PRECISION && fabs(resulta.declination - skymap.object_to_search.declination) < _EPS_PRECISION) {
         Serial.println("\nTest success\n");
     }
     else {
@@ -45,7 +44,7 @@ void test_SKYMAP_sun_equator_noon() {
     dt.day = day;
     dt.month = month;
     dt.year = year;
-    dt.hour = hour;//UTC
+    dt.hour = hour;
 
     // Calculate J2000, Local Sidereal Time, Hour Angle, and Alt/Az
     double j2000 = SKYMAP_j2000(&dt);
@@ -77,7 +76,7 @@ void test_SKYMAP_orion_sydney() {
     dt.day = day;
     dt.month = month;
     dt.year = year;
-    dt.hour = hour;//UTC
+    dt.hour = hour;
 
     // Calculate J2000, Local Sidereal Time, Hour Angle, and Alt/Az
     double j2000 = SKYMAP_j2000(&dt);
@@ -108,7 +107,7 @@ void test_SKYMAP_polaris_nyc() {
     dt.day = day;
     dt.month = month;
     dt.year = year;
-    dt.hour = hour;//UTC
+    dt.hour = hour;
     // Calculate J2000, Local Sidereal Time, Hour Angle, and Alt/Az
     double j2000 = SKYMAP_j2000(&dt);
     double Local_sidereal_time = SKYMAP_local_sidereal_time(j2000, dt.hour, longitude);
@@ -156,11 +155,11 @@ void test_SKYMAP_directly_az_alt_to_ra_dec() {
     dt.hour = 20.0; //UTC
 
     // Perform conversion from Alt/Az to RA/Dec
-    SKYMAP_equatorial_coordinates_t result = SKYMAP_az_alt_to_ra_dec(&geo_position, &local_astr_pos_of_object, &dt);
+    SKYMAP_equatorial_coordinates_t resulta = SKYMAP_az_alt_to_ra_dec(&geo_position, &local_astr_pos_of_object, &dt);
     Serial.print("result ra = ");
-    Serial.print(result.right_ascension);
+    Serial.print(resulta.right_ascension);
     Serial.print(" result dec = ");
-    Serial.println((result.declination));
+    Serial.println((resulta.declination));
 }
 
 
