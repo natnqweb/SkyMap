@@ -3,7 +3,7 @@
 double year, month, day, hour, minute, second; // date and time can be taken from rtc
 double local_timezone_offset;
 double Time_utc;             // we will convert it from your time +offset
-double lattitude, longitude; // your lat and long can be taken from gps or hardcoded
+double latitude, longitude; // your lat and long can be taken from gps or hardcoded
 double RA, dec;              // can be taken from internet just look for star you are interested in
 double j2000;                // SKYMAP_days since jan 2000  - to be calculated
 double Local_sidereal_time;  // to be calculated
@@ -30,14 +30,14 @@ void setup()
     dt.year = year;
     Time_utc = SKYMAP_hh_mm_ss2UTC(&dt, hour, minute, second, local_timezone_offset); // converting to UTC
 
-    lattitude = 34.06;                                                           // los angeles
+    latitude = 34.06;                                                           // los angeles
     longitude = -118.24358;                                                      // los angeles
     RA = 101.52;                                                                 // sirius
     dec = -16.7424;                                                              // sirius
     j2000 = SKYMAP_j2000(&dt);
     Local_sidereal_time = SKYMAP_local_sidereal_time(j2000, Time_utc, longitude);
     Hour_angle = SKYMAP_hour_angle(Local_sidereal_time, RA);
-    SKYMAP_search_result_t result = SKYMAP_search_for_object(Hour_angle, dec, lattitude);
+    SKYMAP_search_result_t result = SKYMAP_search_for_object(Hour_angle, dec, latitude);
     Az = result.azimuth;
     Alt = result.altitude;
 }

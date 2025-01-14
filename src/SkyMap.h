@@ -17,21 +17,21 @@ typedef struct SKYMAP_date_time_values
 
 typedef struct SKYMAP_observer_position
 {
-    SKYMAP_degs lattitude; // The latitude of the observer's position
+    SKYMAP_degs latitude; // The latitude of the observer's position
     SKYMAP_degs longitude; // The longitude of the observer's position
-} SKYMAP_observer_position_t;
+} SKYMAP_observer_position_t, SKYMAP_geo_position_t;
 
 typedef struct SKYMAP_celestial_object
 {
-    SKYMAP_hrs right_ascension; // The right ascension of the celestial object (similar to longitude on Earth)
+    SKYMAP_degs right_ascension; // The right ascension of the celestial object (similar to longitude on Earth)
     SKYMAP_degs declination; // The declination of the celestial object (similar to latitude on Earth)
-} SKYMAP_celestial_object_t, SKYMAP_star_t, SKYMAP_planet_t;
+} SKYMAP_celestial_object_t, SKYMAP_star_t, SKYMAP_planet_t, SKYMAP_astronomical_position_t, SKYMAP_equatorial_coordinates_t;
 
 typedef struct SKYMAP_search_result
 {
     SKYMAP_degs azimuth; // The azimuth angle of the celestial object (measured clockwise from the north)
     SKYMAP_degs altitude; // The altitude angle of the celestial object (measured from the horizon)
-} SKYMAP_search_result_t;
+} SKYMAP_search_result_t, SKYMAP_local_position_t;
 
 typedef struct SKYMAP_skymap
 {
@@ -103,19 +103,19 @@ SKYMAP_degs SKYMAP_local_sidereal_time(SKYMAP_days j2000, SKYMAP_hrs a_time, SKY
 /**
  * @brief Calculates the hour angle.
  * @param lst Local sidereal time in degrees.
- * @param right_ascension Right ascension of the object in hours.
+ * @param right_ascension Right ascension of the object in degrees.
  * @return Hour angle in degrees.
  */
-SKYMAP_degs SKYMAP_hour_angle(SKYMAP_degs lst, SKYMAP_hrs right_ascension);
+SKYMAP_degs SKYMAP_hour_angle(SKYMAP_degs lst, SKYMAP_degs right_ascension);
 
 /**
  * @brief Searches for an object's position in the sky.
  * @param hour_angle Hour angle in degrees.
  * @param declination Declination of the object in degrees.
- * @param lattitude Observer's latitude in degrees.
+ * @param latitude Observer's latitude in degrees.
  * @return A SKYMAP_search_result_t structure containing the azimuth and altitude of the object.
  */
-SKYMAP_search_result_t SKYMAP_search_for_object(SKYMAP_degs hour_angle, SKYMAP_degs declination, SKYMAP_degs lattitude);
+SKYMAP_search_result_t SKYMAP_search_for_object(SKYMAP_degs hour_angle, SKYMAP_degs declination, SKYMAP_degs latitude);
 
 /**
  * @brief Calculates the number of SKYMAP_days since J2000.0 for a given skymap.
@@ -148,20 +148,20 @@ SKYMAP_search_result_t SKYMAP_observe_object(SKYMAP_skymap_t* skymap);
 /**
  * @brief Updates the skymap with new observer and object parameters.
  * @param skymap Pointer to a SKYMAP_skymap_t structure.
- * @param lattitude Observer's latitude in degrees.
+ * @param latitude Observer's latitude in degrees.
  * @param longitude Observer's longitude in degrees.
  * @param declination Declination of the object in degrees.
- * @param right_ascension Right ascension of the object in hours.
+ * @param right_ascension Right ascension of the object in degrees.
  * @param year Year of the observation.
  * @param month Month of the observation.
  * @param day Day of the observation.
  * @param a_time Time of the observation in hours.
  */
-void SKYMAP_update(SKYMAP_skymap_t* skymap, SKYMAP_degs lattitude, SKYMAP_degs longitude, SKYMAP_degs declination, SKYMAP_hrs right_ascension, SKYMAP_years year, SKYMAP_months month, SKYMAP_days day, SKYMAP_hrs a_time);
+void SKYMAP_update(SKYMAP_skymap_t* skymap, SKYMAP_degs latitude, SKYMAP_degs longitude, SKYMAP_degs declination, SKYMAP_degs right_ascension, SKYMAP_years year, SKYMAP_months month, SKYMAP_days day, SKYMAP_hrs a_time);
 
 /**
  * @brief Converts time from hours, minutes, and seconds to UTC.
- * @param skymap Pointer to a SKYMAP_skymap_t structure.
+ * @param dt Pointer to a SKYMAP_date_time_values_t structure.
  * @param h Hours.
  * @param m Minutes.
  * @param s Seconds.
@@ -189,6 +189,22 @@ int SKYMAP_is_object_visible(SKYMAP_search_result_t* obj);
  * @return 1 if the object is visible, 0 otherwise.
  */
 int SKYMAP_is_object_observable(SKYMAP_skymap_t* skymap);
+
+/**
+ * @brief Converts the azimuth and altitude of an object to its equatorial coordinates (RA/Dec).
+ * @param geo_position Pointer to a SKYMAP_geo_position_t structure containing the observer's geographic location.
+ * @param local_astr_pos_of_object Pointer to a SKYMAP_local_position_t structure containing the azimuth and altitude of the object.
+ * @param dt Pointer to a SKYMAP_date_time_values_t structure containing the date and time of the observation. in field hour (Coordinated Universal Time)
+ * @return A SKYMAP_astronomical_position_t structure containing the right ascension (RA) and declination (Dec) of the object.
+ */
+SKYMAP_equatorial_coordinates_t SKYMAP_az_alt_to_ra_dec(
+    SKYMAP_geo_position_t* geo_position,
+    SKYMAP_local_position_t* local_astr_pos_of_object,
+    SKYMAP_date_time_values_t* dt);
+
+
+SKYMAP_hrs SKYMAP_ra_from_lst_and_ha(SKYMAP_degs lst, SKYMAP_degs ha);
+
 
 SKYMAP_rads SKYMAP_deg2rad(SKYMAP_degs Deg)
 {
@@ -230,7 +246,7 @@ SKYMAP_days SKYMAP_j2000(SKYMAP_date_time_values_t* dt)
 
 SKYMAP_degs SKYMAP_local_sidereal_time(SKYMAP_days j2000, SKYMAP_hrs a_time, SKYMAP_degs longitude)
 {
-    SKYMAP_degs LST = 100.46 + 0.985647 * j2000 + longitude + 15. * a_time;
+    SKYMAP_degs LST = 100.46 + 0.985647 * j2000 + longitude + 15.0 * a_time;
     if (LST < 0)
     {
         LST += 360;
@@ -242,7 +258,7 @@ SKYMAP_degs SKYMAP_local_sidereal_time(SKYMAP_days j2000, SKYMAP_hrs a_time, SKY
     return LST;
 }
 
-SKYMAP_degs SKYMAP_hour_angle(SKYMAP_degs lst, SKYMAP_hrs right_ascension)
+SKYMAP_degs SKYMAP_hour_angle(SKYMAP_degs lst, SKYMAP_degs right_ascension)
 {
     SKYMAP_degs HA = lst - right_ascension;
     if (HA < 0)
@@ -256,7 +272,7 @@ SKYMAP_degs SKYMAP_hour_angle(SKYMAP_degs lst, SKYMAP_hrs right_ascension)
     return HA;
 }
 
-SKYMAP_search_result_t SKYMAP_search_for_object(SKYMAP_degs hour_angle, SKYMAP_degs declination, SKYMAP_degs lattitude)
+SKYMAP_search_result_t SKYMAP_search_for_object(SKYMAP_degs hour_angle, SKYMAP_degs declination, SKYMAP_degs latitude)
 {
     /*  math behind calculations -- conversion from HA and DEC to ALT and  AZ
 sin(ALT) = sin(DEC) * sin(LAT) + cos(DEC) * cos(LAT) * cos(HA)
@@ -270,10 +286,10 @@ A = acos(A)
 If sin(HA) is negative,then AZ = A, otherwise AZ = 360 - A */
     double sinDEC = sin(SKYMAP_deg2rad(declination));
     double sinHA = sin(SKYMAP_deg2rad(hour_angle));
-    double sinLAT = sin(SKYMAP_deg2rad(lattitude));
+    double sinLAT = sin(SKYMAP_deg2rad(latitude));
     double cosDEC = cos(SKYMAP_deg2rad(declination));
     double cosHA = cos(SKYMAP_deg2rad(hour_angle));
-    double cosLAT = cos(SKYMAP_deg2rad(lattitude));
+    double cosLAT = cos(SKYMAP_deg2rad(latitude));
     double sinALT = (sinDEC * sinLAT) + (cosDEC * cosLAT * cosHA);
     SKYMAP_degs ALT = asin(sinALT);
     double cosALT = cos((ALT));
@@ -326,13 +342,13 @@ SKYMAP_search_result_t SKYMAP_observe_object(SKYMAP_skymap_t* skymap)
     return SKYMAP_search_for_object(
         SKYMAP_get_hour_angle(skymap),
         skymap->object_to_search.declination,
-        skymap->observer_position.lattitude
+        skymap->observer_position.latitude
     );
 }
 
-void SKYMAP_update(SKYMAP_skymap_t* skymap, SKYMAP_degs lattitude, SKYMAP_degs longitude, SKYMAP_degs declination, SKYMAP_hrs right_ascension, SKYMAP_years year, SKYMAP_months month, SKYMAP_days day, SKYMAP_hrs a_time)
+void SKYMAP_update(SKYMAP_skymap_t* skymap, SKYMAP_degs latitude, SKYMAP_degs longitude, SKYMAP_degs declination, SKYMAP_degs right_ascension, SKYMAP_years year, SKYMAP_months month, SKYMAP_days day, SKYMAP_hrs a_time)
 {
-    skymap->observer_position.lattitude = lattitude;
+    skymap->observer_position.latitude = latitude;
     skymap->observer_position.longitude = longitude;
     skymap->date_time.year = year;
     skymap->date_time.month = month;
@@ -440,4 +456,60 @@ int SKYMAP_is_object_observable(SKYMAP_skymap_t* skymap)
     SKYMAP_search_result_t result = SKYMAP_observe_object(skymap);
     return SKYMAP_is_object_visible(&result);
 }
+
+SKYMAP_hrs SKYMAP_ra_from_lst_and_ha(SKYMAP_degs lst, SKYMAP_degs ha) {
+    SKYMAP_hrs ra = lst - ha;
+
+    ra = fmod(ra, 360.0);
+
+    if (ra < 0.0) {
+        ra += 360.0;
+    }
+    else if (fabs(ra - 360.0) < 1e-6)
+    {
+        ra = 0.0;
+    }
+
+    return ra;
+}
+
+SKYMAP_equatorial_coordinates_t SKYMAP_az_alt_to_ra_dec(
+    SKYMAP_geo_position_t* geo_position,
+    SKYMAP_local_position_t* local_astr_pos_of_object,
+    SKYMAP_date_time_values_t* dt)
+{
+    SKYMAP_rads az_rad = SKYMAP_deg2rad(local_astr_pos_of_object->azimuth);
+    SKYMAP_rads alt_rad = SKYMAP_deg2rad(local_astr_pos_of_object->altitude);
+    SKYMAP_rads lat_rad = SKYMAP_deg2rad(geo_position->latitude);
+
+    double sin_dec = sin(alt_rad) * sin(lat_rad) + cos(alt_rad) * cos(lat_rad) * cos(az_rad);
+
+    if (sin_dec > 1.0) sin_dec = 1.0;
+    if (sin_dec < -1.0) sin_dec = -1.0;
+    SKYMAP_rads dec_rad = asin(sin_dec);
+
+    double cos_ha = (sin(alt_rad) - sin(lat_rad) * sin(dec_rad)) / (cos(lat_rad) * cos(dec_rad));
+
+    if (cos_ha > 1.0) cos_ha = 1.0;
+    if (cos_ha < -1.0) cos_ha = -1.0;
+    SKYMAP_rads ha_rad = acos(cos_ha);
+
+    // Determine the correct hemisphere for HA using sin(Az)
+    if (sin(az_rad) > 0) {
+        ha_rad = 2 * SKYMAP_PI - ha_rad;
+    }
+
+    SKYMAP_degs hour_angle = SKYMAP_rad2deg(ha_rad);
+    SKYMAP_degs declination = SKYMAP_rad2deg(dec_rad);
+    SKYMAP_days j2000 = SKYMAP_j2000(dt);
+    SKYMAP_degs lst = SKYMAP_local_sidereal_time(j2000, dt->hour, geo_position->longitude);
+    SKYMAP_degs ra = SKYMAP_ra_from_lst_and_ha(lst, hour_angle);
+
+    SKYMAP_equatorial_coordinates_t celestial_object;
+    celestial_object.declination = declination;
+    celestial_object.right_ascension = ra;
+
+    return celestial_object;
+}
+
 #endif // SKYMAP_H

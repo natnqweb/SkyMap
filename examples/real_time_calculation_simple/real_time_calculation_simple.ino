@@ -7,7 +7,7 @@ void setup()
     Serial.begin(9600);
 
     SKYMAP_observer_position_t observation_location; // observation location -- los angeles 
-    observation_location.lattitude = 34.06;
+    observation_location.latitude = 34.06;
     observation_location.longitude = -118.24358;
 
     SKYMAP_date_time_values_t dt;
@@ -36,8 +36,8 @@ void loop()
     Serial.print("observations for month:");
     Serial.println((int)skymap.date_time.month);
     Serial.print("in los_angeles: ");
-    Serial.print("lattitude:");
-    Serial.print(skymap.observer_position.lattitude);
+    Serial.print("latitude:");
+    Serial.print(skymap.observer_position.latitude);
     Serial.print(" longitude:");
     Serial.print(skymap.observer_position.longitude);
     Serial.println();
