@@ -1,9 +1,19 @@
 #include <SkyMap.h>
 
 #define _EPS_PRECISION (0.02) 
+
 // depending on board you might not get exact same result because of floating point aritmetics
 // if possible use board that supports 64-bit double precision
 // also if you have a way to get utc datatime directly do not convert it using SKYMAP_hh_mm_ss2UTC but assign it to dt.hour directly
+
+// those types are same. Use one that fits your context most (typedefs)
+// SKYMAP_celestial_object_t = SKYMAP_star_t = SKYMAP_planet_t = SKYMAP_astronomical_position_t = SKYMAP_equatorial_coordinates_t
+
+// those types are also same (typedefs)
+// SKYMAP_observer_position_t = SKYMAP_geo_position_t
+
+// also those 2 are same (typedefs)
+// SKYMAP_search_result_t = SKYMAP_local_position_t
 
 void test_SKYMAP_sirius_los_angeles() {
     // Directly use UTC values for time and date
