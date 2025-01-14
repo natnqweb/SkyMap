@@ -24,6 +24,10 @@ i provided some examples
 in examples we observate sirius from los angeles
 as you will see in examples under you can gather some interesting data as for example hour angle or days from j2000 or local sidereal time and even you can calculate UTC for your timezone
 
+## Q6: Can it be used outside of Arduino?
+
+Yes! The SkyMap library is a C-style, header-only library that depends solely on math.h. This means it can be used almost everywhere, as C is a broadly supported language.
+
 # Install tutorial here
 
 <https://www.ardu-badge.com/SkyMap>
@@ -46,32 +50,34 @@ SKYMAP_equatorial_coordinates_t SKYMAP_az_alt_to_ra_dec(
 ```
 
 ```C
-void test_SKYMAP_sirius_los_angeles() {
-    double year = 2021, month = 9, day = 4, hour = 20, minute = 30, second = 0;
-    double local_timezone_offset = -7; // Los Angeles UTC offset
-    double latitude = 34.06, longitude = -118.24358; // Los Angeles coordinates
-    double RA = 101.52, dec = -16.7424; // Sirius RA and Dec
-    SKYMAP_date_time_values_t dt = { day, month, year };
-    double Time_utc = SKYMAP_hh_mm_ss2UTC(&dt, hour, minute, second, local_timezone_offset);
+void test_SKYMAP_directly_az_alt_to_ra_dec() {
+    // New York City coordinates
+    SKYMAP_geo_position_t geo_position;
+    geo_position.latitude = 40.7128;
+    geo_position.longitude = -74.0060;
 
-    // Calculate J2000, Local Sidereal Time, Hour Angle, and Alt/Az
-    double j2000 = SKYMAP_j2000(&dt);
-    double Local_sidereal_time = SKYMAP_local_sidereal_time(j2000, Time_utc, longitude);
-    double Hour_angle = SKYMAP_hour_angle(Local_sidereal_time, RA);
-    SKYMAP_local_position_t result = SKYMAP_search_for_object(Hour_angle, dec, latitude);
+    // Local astronomical position (Alt/Az)
+    SKYMAP_local_position_t local_astr_pos_of_object;
+    local_astr_pos_of_object.azimuth = 359.89;
+    local_astr_pos_of_object.altitude = 41.44;
 
-    // Perform conversion from Alt/Az back to RA/Dec
-    SKYMAP_geo_position_t geo_position = { latitude, longitude };
-    SKYMAP_astronomical_position_t resulta = SKYMAP_az_alt_to_ra_dec(&geo_position, &result, &dt);
-    Serial.println("Converted RA: %f, Dec: %f\n", resulta.right_ascension, resulta.declination);
-    if (fabs(resulta.right_ascension - RA) < 1e-5 && fabs(resulta.declination - dec) < 1e-5) {
-        Serial.println("\nTest success\n");
-    }
-    else {
-        Serial.println("\nTest failed\n");
-    }
+    // Direct UTC values for time and date
+    SKYMAP_date_time_values_t dt;
+    dt.year = 2021.0;
+    dt.month = 11.0;
+    dt.day = 28.0;
+    dt.hour = 20.0; //UTC
+
+    // Perform conversion from Alt/Az to RA/Dec
+    SKYMAP_equatorial_coordinates_t result = SKYMAP_az_alt_to_ra_dec(&geo_position, &local_astr_pos_of_object, &dt);
+    Serial.print("result ra = ");
+    Serial.print(result.right_ascension);
+    Serial.print(" result dec = ");
+    Serial.println((result.declination));
 }
 ```
+
+More in example - az_alt_to_ra_dec
 
 # Step by Step calculations
 
