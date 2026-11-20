@@ -247,14 +247,10 @@ SKYMAP_days SKYMAP_j2000(SKYMAP_date_time_values_t* dt)
 SKYMAP_degs SKYMAP_local_sidereal_time(SKYMAP_days j2000, SKYMAP_hrs a_time, SKYMAP_degs longitude)
 {
     SKYMAP_degs LST = 100.46 + 0.985647 * j2000 + longitude + 15.0 * a_time;
+    LST = fmod(LST, 360.0);
     if (LST < 0)
-    {
-        LST += 360;
-    }
-    else if (LST > 360)
-    {
-        LST -= 360;
-    }
+        LST += 360.0;
+    
     return LST;
 }
 
